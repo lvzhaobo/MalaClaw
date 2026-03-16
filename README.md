@@ -1,9 +1,17 @@
 # MalaClaw - AI Agent 平台（精简版）
 
-> **名字来源**：MalaClaw = Mala（麻辣）+ Claw（爪子），灵感来自"麻辣小龙虾"  
-> **定位**：用于 AI 咨询、Workshop、培训演示的轻量级 AI Agent 平台  
-> **口号**："够辣才够味，AI 也能自己动手！"
+<div align="center">
+
+![MalaClaw Logo](logo.svg)
+
+> **名字来源**：MalaClaw = Mala（麻辣）+ Claw（龙虾），灵感来自"麻辣小龙虾"  
+> **定位**：用于演示的轻量级 AI Agent 平台  
+> **口号**："麻辣麻辣，AI 到家！"
 > **许可证**：MIT License
+
+这可能是漏洞最多的小龙虾项目，也可能是最简单的小龙虾项目，目标是快速理解小龙虾场景、快速掌握哥模块原理和逻辑。
+
+</div>
 
 ---
 
