@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统配置 - MalaClaw 控制台</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.6.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        :root {
+            --mala-red: #E74C3C;
+            --mala-dark-red: #C0392B;
+            --mala-blue: #3498DB;
+            --dark-gray: #2C3E50;
+            --light-gray: #ECF0F1;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        
+        /* 侧边栏 */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 250px;
+            background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+            border-right: 1px solid #e9ecef;
+            padding-top: 20px;
+            z-index: 1000;
+        }
+        
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            padding: 0 20px 30px;
+            text-decoration: none;
+            color: var(--dark-gray);
+        }
+        
+        .sidebar-brand img {
+            width: 50px;
+            height: 50px;
+            margin-right: 12px;
+        }
+        
+        .sidebar-brand-text {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .sidebar-menu li a {
+            display: block;
+            padding: 12px 20px;
+            color: var(--dark-gray);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .sidebar-menu li a:hover,
+        .sidebar-menu li a.active {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--mala-red);
+            border-left: 3px solid var(--mala-red);
+        }
+        
+        .sidebar-menu i {
+            width: 25px;
+            margin-right: 8px;
+        }
+        
+        /* 主内容区 */
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+        }
+        
+        /* 顶部导航 */
+        .top-navbar {
+            background: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        /* 卡片样式 */
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+            transition: transform 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+        }
+        
+        .card-header {
+            background: white;
+            border-bottom: 2px solid #f0f0f0;
+            font-weight: 600;
+            color: var(--dark-gray);
+            border-radius: 12px 12px 0 0 !important;
+            padding: 20px;
+        }
+        
+        /* 按钮样式 */
+        .btn-mala {
+            background-color: var(--mala-red);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+        
+        .btn-mala:hover {
+            background-color: var(--mala-dark-red);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+            color: white;
+        }
+        
+        .btn-outline-mala {
+            color: var(--mala-red);
+            border: 2px solid var(--mala-red);
+            background: transparent;
+            padding: 8px 20px;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+        
+        .btn-outline-mala:hover {
+            background-color: var(--mala-red);
+            color: white;
+        }
+        
+        /* 状态徽章 */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-ok {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        /* 配置项样式 */
+        .config-item {
+            padding: 16px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .config-item:last-child {
+            border-bottom: none;
+        }
+        
+        .config-label {
+            font-weight: 500;
+            color: #7f8c8d;
+            margin-bottom: 4px;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .config-value {
+            font-family: "Courier New", monospace;
+            font-size: 14px;
+            color: var(--dark-gray);
+            background-color: #f8f9fa;
+            padding: 10px 14px;
+            border-radius: 6px;
+            word-break: break-all;
+            border: 1px solid #e9ecef;
+        }
+        
+        /* 权限项样式 */
+        .permission-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background: white;
+        }
+        
+        .permission-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            font-size: 18px;
+        }
+        
+        .permission-icon.required {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--mala-red);
+        }
+        
+        .permission-icon.optional {
+            background-color: #e9ecef;
+            color: #6c757d;
+        }
+        
+        .permission-info {
+            flex: 1;
+        }
+        
+        .permission-name {
+            font-weight: 500;
+            color: var(--dark-gray);
+        }
+        
+        .permission-desc {
+            font-size: 13px;
+            color: #7f8c8d;
+        }
+        
+        /* 任务卡片 */
+        .task-card {
+            border-left: 4px solid var(--mala-red);
+        }
+        
+        .task-card.paused {
+            border-left-color: #ffc107;
+        }
+        
+        /* 日志条目 */
+        .log-entry {
+            padding: 12px;
+            border-left: 3px solid var(--mala-blue);
+            background-color: #f8f9fa;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            font-family: "Courier New", monospace;
+            font-size: 13px;
+        }
+        
+        .log-success {
+            border-left-color: #28a745;
+        }
+        
+        .log-error {
+            border-left-color: #dc3545;
+        }
+        
+        /* 统计卡片 */
+        .stat-card {
+            text-align: center;
+            padding: 25px;
+        }
+        
+        .stat-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--dark-gray);
+        }
+    </style>
+</head>
+<body>
+    <!-- 侧边栏 -->
+    <div class="sidebar">
+        <a href="/" class="sidebar-brand">
+            <img src="/logo.svg" alt="MalaClaw">
+            <span class="sidebar-brand-text">MalaClaw</span>
+        </a>
+        <ul class="sidebar-menu">
+            <li><a href="/"><i class="fas fa-home"></i> 首页</a></li>
+            <li><a href="/scenarios"><i class="fas fa-store"></i> 场景商城</a></li>
+            <li><a href="/daily_push"><i class="fas fa-bell"></i> 每日推送</a></li>
+            <li><a href="/todos"><i class="fas fa-tasks"></i> 任务管理</a></li>
+            <li><a href="/config" class="active"><i class="fas fa-cog"></i> 系统配置</a></li>
+        </ul>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="main-content">
+        <!-- 顶部导航 -->
+        <div class="top-navbar">
+            <div>
+                <h4 class="mb-0">系统配置</h4>
+                <small class="text-muted">管理 MalaClaw 的所有集成配置</small>
+            </div>
+            <div>
+                <span class="status-badge status-ok mr-2"><i class="fas fa-circle"></i> 系统运行中</span>
+            </div>
+        </div>
+
+        <!-- 系统状态概览 -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card stat-card">
+                    <div class="stat-icon text-success">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-label">飞书配置</div>
+                    <div class="stat-value" id="feishu-status-text">已配置</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card">
+                    <div class="stat-icon" style="color: var(--mala-red);">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="stat-label">AI 服务</div>
+                    <div class="stat-value">百炼平台</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card">
+                    <div class="stat-icon text-info">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div class="stat-label">定时任务</div>
+                    <div class="stat-value" id="task-count">0</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card">
+                    <div class="stat-icon text-warning">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="stat-label">邮件服务</div>
+                    <div class="stat-value" id="email-status-text">未配置</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- 左侧：飞书配置 -->
+            <div class="col-md-6">
+                <!-- 飞书应用配置 -->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-comment-dots mr-2" style="color: var(--mala-red);"></i>飞书应用配置</span>
+                        <div>
+                            <button class="btn btn-outline-mala btn-sm mr-2" onclick="toggleFeishuEdit()">
+                                <i class="fas fa-edit"></i> <span id="feishu-edit-btn-text">修改配置</span>
+                            </button>
+                            <button class="btn btn-mala btn-sm" onclick="testFeishuConnection()">
+                                <i class="fas fa-plug"></i> 测试连接
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- 配置展示模式 -->
+                        <div id="feishu-display-mode">
+                            <div class="config-item">
+                                <div class="config-label">应用名称</div>
+                                <div class="config-value" id="display-app-name">MalaClaw</div>
+                            </div>
+                            <div class="config-item">
+                                <div class="config-label">App ID</div>
+                                <div class="config-value" id="display-app-id">-</div>
+                            </div>
+                            <div class="config-item">
+                                <div class="config-label">App Secret</div>
+                                <div class="config-value" id="display-app-secret">********************</div>
+                            </div>
+                            <div class="config-item">
+                                <div class="config-label">Token 状态</div>
+                                <div id="token-status">
+                                    <span class="status-badge status-ok"><i class="fas fa-check"></i> 有效</span>
+                                    <small class="text-muted ml-2">过期时间: 自动刷新</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 配置编辑模式 -->
+                        <div id="feishu-edit-mode" style="display: none;">
+                            <form id="feishu-config-form">
+                                <div class="form-group">
+                                    <label>应用名称</label>
+                                    <input type="text" class="form-control" id="feishu-app-name" placeholder="如：MalaClaw" value="MalaClaw">
+                                </div>
+                                <div class="form-group">
+                                    <label>Webhook URL（方式一：简单模式）</label>
+                                    <input type="text" class="form-control" id="feishu-webhook" placeholder="https://open.feishu.cn/open-apis/bot/v2/hook/xxxxxxxx">
+                                    <small class="form-text text-muted">使用群机器人 Webhook，适合固定群发送</small>
+                                </div>
+                                <div class="dropdown-divider my-3"></div>
+                                <div class="form-group">
+                                    <label>App ID（方式二：完整模式）</label>
+                                    <input type="text" class="form-control" id="feishu-app-id" placeholder="cli_xxxxxxxxxxxxxxxx">
+                                    <small class="form-text text-muted">在飞书开发者后台获取，支持发送到任意群/个人</small>
+                                </div>
+                                <div class="form-group">
+                                    <label>App Secret（方式二：完整模式）</label>
+                                    <input type="password" class="form-control" id="feishu-app-secret" placeholder="输入 App Secret">
+                                    <small class="form-text text-muted">用于获取访问令牌</small>
+                                </div>
+                                <div class="form-group">
+                                    <label>Encrypt Key（可选）</label>
+                                    <input type="text" class="form-control" id="feishu-encrypt-key" placeholder="用于消息加密解密">
+                                    <small class="form-text text-muted">如启用消息加密，需填写此项</small>
+                                </div>
+                                <div class="form-group">
+                                    <label>Verification Token（可选）</label>
+                                    <input type="text" class="form-control" id="feishu-verification-token" placeholder="用于验证请求来源">
+                                </div>
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i> <strong>两种方式：</strong><br>
+                                    • <strong>Webhook</strong>：简单快速，只能发送到固定群<br>
+                                    • <strong>App ID + Secret</strong>：功能完整，可发送到任意群或个人
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="toggleFeishuEdit()">
+                                        <i class="fas fa-times"></i> 取消
+                                    </button>
+                                    <button type="button" class="btn btn-mala" onclick="saveFeishuConfig()">
+                                        <i class="fas fa-save"></i> 保存配置
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 飞书权限配置 -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-shield-alt mr-2" style="color: var(--mala-red);"></i>飞书权限配置
+                    </div>
+                    <div class="card-body">
+                        <h6 class="text-muted mb-3">必需权限</h6>
+                        
+                        <div class="permission-item">
+                            <div class="permission-icon required">
+                                <i class="fas fa-comments"></i>
+                            </div>
+                            <div class="permission-info">
+                                <div class="permission-name">im:chat:readonly</div>
+                                <div class="permission-desc">读取群聊信息，用于获取群列表</div>
+                            </div>
+                            <span class="status-badge status-ok">已申请</span>
+                        </div>
+                        
+                        <div class="permission-item">
+                            <div class="permission-icon required">
+                                <i class="fas fa-paper-plane"></i>
+                            </div>
+                            <div class="permission-info">
+                                <div class="permission-name">im:message:send</div>
+                                <div class="permission-desc">发送消息到群聊或私聊</div>
+                            </div>
+                            <span class="status-badge status-ok">已申请</span>
+                        </div>
+                        
+                        <div class="permission-item">
+                            <div class="permission-icon required">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="permission-info">
+                                <div class="permission-name">contact:user:readonly</div>
+                                <div class="permission-desc">读取用户信息，用于@用户</div>
+                            </div>
+                            <span class="status-badge status-ok">已申请</span>
+                        </div>
+
+                        <h6 class="text-muted mb-3 mt-4">可选权限</h6>
+                        
+                        <div class="permission-item">
+                            <div class="permission-icon optional">
+                                <i class="fas fa-calendar"></i>
+                            </div>
+                            <div class="permission-info">
+                                <div class="permission-name">calendar:calendar:readonly</div>
+                                <div class="permission-desc">读取日历信息，用于会议提醒</div>
+                            </div>
+                            <span class="status-badge status-warning">未申请</span>
+                        </div>
+                        
+                        <div class="permission-item">
+                            <div class="permission-icon optional">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <div class="permission-info">
+                                <div class="permission-name">docs:document:readonly</div>
+                                <div class="permission-desc">读取文档信息，用于文档协作</div>
+                            </div>
+                            <span class="status-badge status-warning">未申请</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 使用说明 -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-book mr-2" style="color: var(--mala-red);"></i>使用说明
+                    </div>
+                    <div class="card-body">
+                        <h6>1. 添加应用到群聊</h6>
+                        <p class="text-muted small">在飞书群设置中，选择"添加应用"，搜索"MalaClaw"并添加。</p>
+                        
+                        <h6>2. 获取群 ID</h6>
+                        <p class="text-muted small">添加应用后，系统会自动获取群列表。在"每日推送"页面选择要发送的群。</p>
+                        
+                        <h6>3. 发送消息</h6>
+                        <p class="text-muted small">选择场景、配置推送时间，点击"模拟推送"即可发送真实消息到飞书。</p>
+                        
+                        <div class="alert alert-info mt-3">
+                            <i class="fas fa-info-circle"></i> 
+                            <strong>提示：</strong>应用需要发布后才能被添加到群聊。在飞书开发者后台完成发布流程。
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧：配置任务和日志 -->
+            <div class="col-md-6">
+                <!-- 当前配置任务 -->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-tasks mr-2" style="color: var(--mala-red);"></i>当前配置任务</span>
+                        <button class="btn btn-outline-mala btn-sm" onclick="loadConfigTasks()">
+                            <i class="fas fa-sync"></i> 刷新
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="config-tasks-container">
+                            <div class="text-center text-muted">
+                                <i class="fas fa-spinner fa-spin"></i> 加载中...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 邮件配置 -->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-envelope mr-2" style="color: var(--mala-red);"></i>邮件配置</span>
+                        <button class="btn btn-mala btn-sm" onclick="testEmailConnection()">
+                            <i class="fas fa-paper-plane"></i> 测试发送
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <form id="email-config-form">
+                            <div class="form-group">
+                                <label>SMTP 服务器</label>
+                                <input type="text" class="form-control" id="smtp-server" placeholder="如：smtp.qq.com">
+                            </div>
+                            <div class="form-group">
+                                <label>SMTP 端口</label>
+                                <input type="number" class="form-control" id="smtp-port" value="465">
+                            </div>
+                            <div class="form-group">
+                                <label>发件人邮箱</label>
+                                <input type="email" class="form-control" id="smtp-username" placeholder="your@email.com">
+                            </div>
+                            <div class="form-group">
+                                <label>邮箱密码 / 授权码</label>
+                                <input type="password" class="form-control" id="smtp-password" placeholder="请输入授权码">
+                                <small class="form-text text-muted">QQ邮箱等需要使用授权码而非登录密码</small>
+                            </div>
+                            <button type="button" class="btn btn-mala" onclick="saveEmailConfig()">
+                                <i class="fas fa-save"></i> 保存配置
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- API 配置信息 -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-code mr-2" style="color: var(--mala-red);"></i>API 配置
+                    </div>
+                    <div class="card-body">
+                        <div class="config-item">
+                            <div class="config-label">百炼 API Key</div>
+                            <div class="config-value">sk-********************</div>
+                            <small class="text-muted">用于 AI 对话功能</small>
+                        </div>
+                        <div class="config-item">
+                            <div class="config-label">百炼 Base URL</div>
+                            <div class="config-value">https://dashscope.aliyuncs.com/compatible-mode/v1</div>
+                        </div>
+                        <div class="config-item">
+                            <div class="config-label">默认模型</div>
+                            <div class="config-value">qwen-plus</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 系统日志 -->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-history mr-2" style="color: var(--mala-red);"></i>系统日志</span>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="loadSystemLogs()">
+                            <i class="fas fa-sync"></i> 刷新
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="system-logs-container" style="max-height: 300px; overflow-y: auto;">
+                            <div class="text-center text-muted">
+                                <i class="fas fa-spinner fa-spin"></i> 加载中...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主内容区结束 -->
+    </div>
+
+    <!-- 测试结果模态框 -->
+    <div class="modal fade" id="testResultModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">连接测试结果</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="test-result-content">
+                    <!-- 动态内容 -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.6.2/js/bootstrap.min.js"></script>
+    
+    <script>
+        // 页面加载
+        $(document).ready(function() {
+            loadConfigTasks();
+            loadSystemLogs();
+            loadFeishuConfig();
+        });
+
+        // 加载飞书配置
+        function loadFeishuConfig() {
+            $.get('/api/config/feishu', function(response) {
+                if (response.status === 'success' && response.data) {
+                    $('#display-app-name').text(response.data.app_name || 'MalaClaw');
+                    $('#display-app-id').text(response.data.app_id || '-');
+                    $('#feishu-app-name').val(response.data.app_name || 'MalaClaw');
+                    $('#feishu-app-id').val(response.data.app_id || '');
+                    $('#feishu-webhook').val(response.data.webhook || '');
+                    // Secret 不回显
+                    if (response.data.encrypt_key) {
+                        $('#feishu-encrypt-key').val(response.data.encrypt_key);
+                    }
+                    if (response.data.verification_token) {
+                        $('#feishu-verification-token').val(response.data.verification_token);
+                    }
+                    
+                    // 更新状态显示
+                    if (response.data.app_id || response.data.webhook) {
+                        $('#feishu-status-text').text('已配置');
+                    } else {
+                        $('#feishu-status-text').text('未配置');
+                    }
+                }
+            }).fail(function() {
+                $('#display-app-id').text('-');
+                $('#feishu-status-text').text('未配置');
+            });
+        }
+
+        // 切换飞书编辑模式
+        let feishuEditMode = false;
+        function toggleFeishuEdit() {
+            feishuEditMode = !feishuEditMode;
+            if (feishuEditMode) {
+                $('#feishu-display-mode').hide();
+                $('#feishu-edit-mode').show();
+                $('#feishu-edit-btn-text').text('取消修改');
+            } else {
+                $('#feishu-display-mode').show();
+                $('#feishu-edit-mode').hide();
+                $('#feishu-edit-btn-text').text('修改配置');
+            }
+        }
+
+        // 保存飞书配置
+        function saveFeishuConfig() {
+            const config = {
+                app_name: $('#feishu-app-name').val(),
+                webhook: $('#feishu-webhook').val(),
+                app_id: $('#feishu-app-id').val(),
+                app_secret: $('#feishu-app-secret').val(),
+                encrypt_key: $('#feishu-encrypt-key').val(),
+                verification_token: $('#feishu-verification-token').val()
+            };
+            
+            // 至少填写一种方式
+            if (!config.webhook && (!config.app_id || !config.app_secret)) {
+                alert('请至少配置一种方式：\n• Webhook URL（简单模式）\n• App ID + App Secret（完整模式）');
+                return;
+            }
+            
+            $.ajax({
+                url: '/api/config/feishu',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(config),
+                success: function(response) {
+                    alert('飞书配置保存成功！');
+                    toggleFeishuEdit();
+                    loadFeishuConfig();
+                },
+                error: function(xhr) {
+                    const error = xhr.responseJSON?.error || '保存失败';
+                    alert('保存失败：' + error);
+                }
+            });
+        }
+
+        // 测试飞书连接
+        function testFeishuConnection() {
+            const btn = $(event.target).closest('button');
+            const originalText = btn.html();
+            btn.html('<i class="fas fa-spinner fa-spin"></i> 测试中...').prop('disabled', true);
+            
+            $.get('/api/feishu/chats', function(response) {
+                btn.html(originalText).prop('disabled', false);
+                                
+                if (response.status === 'success') {
+                    const chatCount = response.data ? response.data.length : 0;
+                    $('#test-result-content').html(`
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i> <strong>连接成功！</strong>
+                        </div>
+                        <p>已成功获取到 <strong>${chatCount}</strong> 个群聊</p>
+                        <p>飞书应用：<strong>MalaClaw</strong></p>
+                        <p>Token 状态：有效</p>
+                    `);
+                } else {
+                    $('#test-result-content').html(`
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i> <strong>连接异常</strong>
+                        </div>
+                        <p>错误信息：${response.error || '未知错误'}</p>
+                    `);
+                }
+                $('#testResultModal').modal('show');
+            }).fail(function(xhr) {
+                btn.html(originalText).prop('disabled', false);
+                const error = xhr.responseJSON?.error || '连接失败';
+                $('#test-result-content').html(`
+                    <div class="alert alert-danger">
+                        <i class="fas fa-times-circle"></i> <strong>连接失败</strong>
+                    </div>
+                    <p>错误信息：${error}</p>
+                    <p>请检查：</p>
+                    <ul>
+                        <li>App ID 和 App Secret 是否正确</li>
+                        <li>应用是否已发布</li>
+                        <li>网络连接是否正常</li>
+                    </ul>
+                `);
+                $('#testResultModal').modal('show');
+            });
+        }
+
+        // 加载配置任务
+        function loadConfigTasks() {
+            $.get('/api/jobs', function(data) {
+                // 更新任务数量
+                $('#task-count').text(data.length);
+                
+                const container = $('#config-tasks-container');
+                container.empty();
+                
+                if (data.length === 0) {
+                    container.html(`
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-inbox fa-2x mb-2"></i>
+                            <p>暂无配置任务</p>
+                            <a href="/daily_push" class="btn btn-sm btn-primary">去创建任务</a>
+                        </div>
+                    `);
+                    return;
+                }
+                
+                data.forEach(function(job) {
+                    const statusClass = job.status === 'running' ? 'status-ok' : 'status-warning';
+                    const statusText = job.status === 'running' ? '运行中' : '已暂停';
+                    const cardClass = job.status === 'running' ? '' : 'paused';
+                    
+                    const taskHtml = `
+                        <div class="card task-card mb-3 ${cardClass}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">${job.name}</h6>
+                                        <small class="text-muted">
+                                            <i class="fas fa-robot"></i> ${job.agent} 
+                                            <i class="fas fa-code ml-2"></i> ${job.skill}
+                                        </small>
+                                    </div>
+                                    <span class="status-badge ${statusClass}">${statusText}</span>
+                                </div>
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock"></i> ${job.cron}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.append(taskHtml);
+                });
+            }).fail(function() {
+                $('#config-tasks-container').html(`
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle"></i> 加载失败
+                    </div>
+                `);
+            });
+        }
+
+        // 加载系统日志
+        function loadSystemLogs() {
+            $.get('/api/logs', function(data) {
+                const container = $('#system-logs-container');
+                container.empty();
+                
+                if (data.length === 0) {
+                    container.html('<div class="text-center text-muted">暂无日志</div>');
+                    return;
+                }
+                
+                // 倒序显示（最新的在前），只显示最近20条
+                data.slice(-20).reverse().forEach(function(log) {
+                    const logClass = log.status === 'success' ? 'log-success' : 'log-error';
+                    const typeBadge = log.type === 'scheduled' ? 
+                        '<span class="badge badge-info">定时</span>' : 
+                        '<span class="badge badge-secondary">手动</span>';
+                    
+                    const logHtml = `
+                        <div class="log-entry ${logClass}">
+                            <strong>[${log.timestamp}]</strong> ${typeBadge}
+                            <strong>${log.agent || log.job}</strong> → ${log.skill}
+                            <br>
+                            <small class="text-muted">${log.result}</small>
+                        </div>
+                    `;
+                    container.append(logHtml);
+                });
+            }).fail(function() {
+                $('#system-logs-container').html(`
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle"></i> 加载失败
+                    </div>
+                `);
+            });
+        }
+
+        // 保存邮件配置
+        function saveEmailConfig() {
+            const config = {
+                smtp_server: $('#smtp-server').val(),
+                smtp_port: parseInt($('#smtp-port').val()),
+                username: $('#smtp-username').val(),
+                password: $('#smtp-password').val()
+            };
+            
+            if (!config.smtp_server || !config.username || !config.password) {
+                alert('请填写完整的邮件配置信息');
+                return;
+            }
+            
+            $.ajax({
+                url: '/api/config/email',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(config),
+                success: function(response) {
+                    alert('邮件配置保存成功！');
+                    $('#email-status-text').text('已配置');
+                },
+                error: function(xhr) {
+                    const error = xhr.responseJSON?.error || '保存失败';
+                    alert('保存失败：' + error);
+                }
+            });
+        }
+
+        // 测试邮件连接
+        function testEmailConnection() {
+            const toAddress = prompt('请输入测试接收邮箱：');
+            if (!toAddress) return;
+            
+            const btn = $(event.target).closest('button');
+            const originalText = btn.html();
+            btn.html('<i class="fas fa-spinner fa-spin"></i> 发送中...').prop('disabled', true);
+            
+            $.ajax({
+                url: '/api/email/test',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    to_address: toAddress,
+                    subject: 'MalaClaw 邮件测试',
+                    content: '这是一封来自 MalaClaw 的测试邮件。如果您收到此邮件，说明邮件配置正确！'
+                }),
+                success: function(response) {
+                    btn.html(originalText).prop('disabled', false);
+                    $('#test-result-content').html(`
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i> <strong>发送成功！</strong>
+                        </div>
+                        <p>测试邮件已发送到：${toAddress}</p>
+                        <p>请检查收件箱（包括垃圾邮件文件夹）</p>
+                    `);
+                    $('#testResultModal').modal('show');
+                },
+                error: function(xhr) {
+                    btn.html(originalText).prop('disabled', false);
+                    const error = xhr.responseJSON?.error || '发送失败';
+                    $('#test-result-content').html(`
+                        <div class="alert alert-danger">
+                            <i class="fas fa-times-circle"></i> <strong>发送失败</strong>
+                        </div>
+                        <p>错误信息：${error}</p>
+                        <p>请检查：</p>
+                        <ul>
+                            <li>SMTP 服务器地址和端口是否正确</li>
+                            <li>邮箱账号和密码/授权码是否正确</li>
+                            <li>邮箱是否开启了 SMTP 服务</li>
+                        </ul>
+                    `);
+                    $('#testResultModal').modal('show');
+                }
+            });
+        }
+
+        // 页面加载时获取当前邮件配置
+        $(document).ready(function() {
+            $.get('/api/config/email', function(response) {
+                if (response.status === 'success' && response.data) {
+                    $('#smtp-server').val(response.data.smtp_server || '');
+                    $('#smtp-port').val(response.data.smtp_port || 465);
+                    $('#smtp-username').val(response.data.username || '');
+                    // 密码不返回前端
+                    if (response.data.smtp_server) {
+                        $('#email-status-text').text('已配置');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

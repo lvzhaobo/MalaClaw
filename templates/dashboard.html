@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MalaClaw 控制台 - AI Agent 管理平台</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.6.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        :root {
+            --mala-red: #E74C3C;
+            --mala-dark-red: #C0392B;
+            --mala-blue: #3498DB;
+            --dark-gray: #2C3E50;
+            --light-gray: #ECF0F1;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        
+        /* 侧边栏 */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 250px;
+            background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+            border-right: 1px solid #e9ecef;
+            padding-top: 20px;
+            z-index: 1000;
+        }
+        
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            padding: 0 20px 30px;
+            text-decoration: none;
+            color: var(--dark-gray);
+        }
+        
+        .sidebar-brand img {
+            width: 70px;
+            height: 70px;
+            margin-right: 12px;
+        }
+        
+        .sidebar-brand-text {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .sidebar-menu li a {
+            display: block;
+            padding: 12px 20px;
+            color: var(--dark-gray);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .sidebar-menu li a:hover,
+        .sidebar-menu li a.active {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--mala-red);
+            border-left: 3px solid var(--mala-red);
+        }
+        
+        .sidebar-menu i {
+            width: 25px;
+            margin-right: 8px;
+        }
+        
+        /* 主内容区 */
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+        }
+        
+        /* 顶部导航 */
+        .top-navbar {
+            background: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        /* 卡片样式 */
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+            transition: transform 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+        }
+        
+        .card-header {
+            background: white;
+            border-bottom: 2px solid #f0f0f0;
+            font-weight: 600;
+            color: var(--dark-gray);
+            border-radius: 12px 12px 0 0 !important;
+            padding: 20px;
+        }
+        
+        .stat-card {
+            text-align: center;
+            padding: 30px;
+        }
+        
+        .stat-number {
+            font-size: 36px;
+            font-weight: bold;
+            color: var(--mala-red);
+            margin: 10px 0;
+        }
+        
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        
+        /* 按钮样式 */
+        .btn-mala {
+            background-color: var(--mala-red);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+        
+        .btn-mala:hover {
+            background-color: var(--mala-dark-red);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+        }
+        
+        /* Agent 状态徽章 */
+        .agent-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .agent-idle {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .agent-working {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+        
+        .agent-error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        /* 日志条目 */
+        .log-item {
+            padding: 12px;
+            border-left: 3px solid var(--mala-blue);
+            background-color: #f8f9fa;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            font-family: "Courier New", monospace;
+            font-size: 13px;
+        }
+        
+        .log-success {
+            border-left-color: #28a745;
+        }
+        
+        .log-error {
+            border-left-color: #dc3545;
+        }
+        
+        /* 动画效果 */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .pulse-dot {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- 侧边栏 -->
+    <div class="sidebar">
+        <a href="/dashboard" class="sidebar-brand">
+            <img src="/logo.svg" alt="MalaClaw" style="width: 70px; height: 70px;">
+            <div class="sidebar-brand-text">
+                MalaClaw<br>
+                <small style="font-size: 12px; color: #7f8c8d;">麻辣小龙虾</small>
+            </div>
+        </a>
+        
+        <ul class="sidebar-menu">
+            <li><a href="/dashboard" class="active"><i class="fas fa-home"></i>控制台首页</a></li>
+            <li><a href="/scenarios"><i class="fas fa-robot"></i>场景商城</a></li>
+            <li><a href="/daily_push"><i class="fas fa-question-circle"></i>每日推送</a></li>
+            <li><a href="/todos"><i class="fas fa-tasks"></i>任务管理</a></li>
+            <!--<li><a href="#"><i class="fas fa-clock"></i>定时任务</a></li>
+            <li><a href="#"><i class="fas fa-file-alt"></i>执行日志</a></li>-->
+            <li><a href="/config"><i class="fas fa-cog"></i>系统设置</a></li>
+        </ul>
+    </div>
+    
+    <!-- 主内容区 -->
+    <div class="main-content">
+        <!-- 顶部导航 -->
+        <div class="top-navbar">
+            <div>
+                <h4 style="margin: 0; color: var(--dark-gray);">控制台概览</h4>
+                <small style="color: #7f8c8d;">欢迎使用 MalaClaw AI Agent 平台</small>
+            </div>
+            <div>
+                <button class="btn btn-mala">
+                    <i class="fas fa-plus-circle"></i> 新建任务
+                </button>
+                <button class="btn btn-outline-secondary ml-2">
+                    <i class="fas fa-sync"></i> 刷新
+                </button>
+            </div>
+        </div>
+        
+        <!-- 统计卡片 -->
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card stat-card">
+                    <i class="fas fa-robot" style="font-size: 40px; color: var(--mala-blue);"></i>
+                    <div class="stat-number">4</div>
+                    <div class="stat-label">智能助手</div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card stat-card">
+                    <i class="fas fa-tasks" style="font-size: 40px; color: #28a745;"></i>
+                    <div class="stat-number">10</div>
+                    <div class="stat-label">可用技能</div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card stat-card">
+                    <i class="fas fa-clock" style="font-size: 40px; color: #f39c12;"></i>
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">定时任务</div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card stat-card">
+                    <i class="fas fa-check-circle" style="font-size: 40px; color: #27ae60;"></i>
+                    <div class="stat-number">156</div>
+                    <div class="stat-label">今日执行</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Agent 状态 -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-users"></i> 智能助手状态
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>助手名称</th>
+                                        <th>角色</th>
+                                        <th>技能数量</th>
+                                        <th>状态</th>
+                                        <th>最近活动</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>内容助手</strong></td>
+                                        <td>内容创作</td>
+                                        <td>4</td>
+                                        <td><span class="agent-badge agent-idle">空闲</span></td>
+                                        <td>5 分钟前</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary">执行</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>数据助手</strong></td>
+                                        <td>数据分析</td>
+                                        <td>5</td>
+                                        <td><span class="agent-badge agent-working">工作中</span></td>
+                                        <td>刚刚</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary">执行</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>客服助手</strong></td>
+                                        <td>客户服务</td>
+                                        <td>4</td>
+                                        <td><span class="agent-badge agent-idle">空闲</span></td>
+                                        <td>10 分钟前</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary">执行</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>协调员</strong></td>
+                                        <td>任务协调</td>
+                                        <td>2</td>
+                                        <td><span class="agent-badge agent-idle">空闲</span></td>
+                                        <td>1 小时前</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary">执行</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 最近任务 -->
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-history"></i> 最近任务
+                    </div>
+                    <div class="card-body">
+                        <div class="list-group">
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>每日晨报发送</strong>
+                                        <br>
+                                        <small class="text-muted">客服助手 · feishu_message</small>
+                                    </div>
+                                    <span class="badge badge-success">成功</span>
+                                </div>
+                            </div>
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>销售数据分析</strong>
+                                        <br>
+                                        <small class="text-muted">数据助手 · data_analysis</small>
+                                    </div>
+                                    <span class="badge badge-success">成功</span>
+                                </div>
+                            </div>
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>季度报告生成</strong>
+                                        <br>
+                                        <small class="text-muted">内容助手 · content_generation</small>
+                                    </div>
+                                    <span class="badge badge-warning">进行中</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-bolt"></i> 快速操作
+                    </div>
+                    <div class="card-body">
+                        <button class="btn btn-mala btn-block mb-2">
+                            <i class="fas fa-play"></i> 立即执行任务
+                        </button>
+                        <button class="btn btn-outline-primary btn-block mb-2">
+                            <i class="fas fa-plus"></i> 创建定时任务
+                        </button>
+                        <button class="btn btn-outline-success btn-block mb-2">
+                            <i class="fas fa-file-excel"></i> 处理 Excel
+                        </button>
+                        <button class="btn btn-outline-info btn-block mb-2">
+                            <i class="fas fa-comments"></i> 大模型对话
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 执行日志 -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-terminal"></i> 实时日志
+                        <button class="btn btn-sm btn-outline-secondary float-right">
+                            <i class="fas fa-sync"></i> 刷新
+                        </button>
+                    </div>
+                    <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                        <div class="log-item log-success">
+                            <strong>[14:32:15]</strong> 
+                            <span class="badge badge-info">定时</span>
+                            <strong>客服助手</strong> → feishu_message 
+                            <span class="float-right text-success">✓ 成功</span>
+                            <br>
+                            <small class="text-muted">飞书消息发送成功：每日晨报</small>
+                        </div>
+                        
+                        <div class="log-item log-success">
+                            <strong>[14:30:02]</strong> 
+                            <span class="badge badge-primary">手动</span>
+                            <strong>数据助手</strong> → data_analysis 
+                            <span class="float-right text-success">✓ 成功</span>
+                            <br>
+                            <small class="text-muted">完成销售数据分析报告</small>
+                        </div>
+                        
+                        <div class="log-item">
+                            <strong>[14:28:45]</strong> 
+                            <span class="badge badge-primary">手动</span>
+                            <strong>内容助手</strong> → content_generation 
+                            <span class="float-right text-warning">⏳ 进行中</span>
+                            <br>
+                            <small class="text-muted">正在生成季度报告...</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.6.2/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 菜单 active 状态切换
+        $(document).ready(function() {
+            $('.sidebar-menu li a').on('click', function(e) {
+                // 如果不是当前页面，允许跳转
+                if (!$(this).attr('href') || $(this).attr('href') === '#') {
+                    e.preventDefault();
+                }
+                
+                // 移除所有 active 状态
+                $('.sidebar-menu li a').removeClass('active');
+                // 添加当前 active 状态
+                $(this).addClass('active');
+            });
+            
+            // 根据当前路径设置 active
+            var currentPath = window.location.pathname;
+            $('.sidebar-menu li a').each(function() {
+                if ($(this).attr('href') === currentPath) {
+                    $('.sidebar-menu li a').removeClass('active');
+                    $(this).addClass('active');
+                }
+            });
+        });
+        
+        // 实时更新（示例）
+        setInterval(function() {
+            // 这里可以添加 AJAX 请求来更新数据
+            console.log('Updating dashboard...');
+        }, 5000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<svg width="400" height="400" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+    <!-- MalaClaw LOGO v5 - 萌系小龙虾（无钳子版） -->
+    
+    <!-- ========== 可爱小龙虾脸 (居中放大) ========== -->
+    <g transform="translate(0, -20)">
+        <!-- 圆脸 -->
+        <circle cx="200" cy="195" r="70" fill="#FF6B6B" stroke="#2D3436" stroke-width="4"/>
+        
+        <!-- 脸部分节线 -->
+        <path d="M145,180 Q200,172 255,180" stroke="#E55A5A" stroke-width="2.5" fill="none"/>
+        <path d="M150,205 Q200,197 250,205" stroke="#E55A5A" stroke-width="2.5" fill="none"/>
+        <path d="M155,230 Q200,222 245,230" stroke="#E55A5A" stroke-width="2.5" fill="none"/>
+        
+        <!-- 超萌大眼睛 -->
+        <g>
+            <!-- 左眼 -->
+            <ellipse cx="170" cy="180" rx="22" ry="25" fill="#FFF" stroke="#2D3436" stroke-width="3"/>
+            <ellipse cx="175" cy="184" rx="12" ry="15" fill="#2D3436"/>
+            <circle cx="170" cy="176" r="6" fill="#FFF"/>
+            <circle cx="179" cy="190" r="3" fill="#FFF"/>
+            <!-- 眼睫毛 -->
+            <path d="M152,162 L158,170" stroke="#2D3436" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M158,156 L163,166" stroke="#2D3436" stroke-width="2.5" stroke-linecap="round"/>
+            
+            <!-- 右眼 -->
+            <ellipse cx="230" cy="180" rx="22" ry="25" fill="#FFF" stroke="#2D3436" stroke-width="3"/>
+            <ellipse cx="235" cy="184" rx="12" ry="15" fill="#2D3436"/>
+            <circle cx="230" cy="176" r="6" fill="#FFF"/>
+            <circle cx="239" cy="190" r="3" fill="#FFF"/>
+            <!-- 眼睫毛 -->
+            <path d="M248,162 L242,170" stroke="#2D3436" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M242,156 L237,166" stroke="#2D3436" stroke-width="2.5" stroke-linecap="round"/>
+        </g>
+        
+        <!-- 开心嘴巴 -->
+        <path d="M175,225 Q200,245 225,225" stroke="#2D3436" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        <path d="M185,230 Q200,242 215,230" stroke="#2D3436" stroke-width="2.5" fill="#FFCDD2" stroke-linecap="round"/>
+        
+        <!-- 腮红 -->
+        <ellipse cx="140" cy="205" rx="14" ry="8" fill="#FFCDD2" opacity="0.8"/>
+        <ellipse cx="260" cy="205" rx="14" ry="8" fill="#FFCDD2" opacity="0.8"/>
+        
+        <!-- 头顶触须 -->
+        <g stroke="#2D3436" stroke-width="3.5" fill="none" stroke-linecap="round">
+            <path d="M165,128 Q140,95 115,75"/>
+            <path d="M180,122 Q165,85 150,60"/>
+            <path d="M235,128 Q260,95 285,75"/>
+            <path d="M220,122 Q235,85 250,60"/>
+            <!-- 触须末端小球 -->
+            <circle cx="115" cy="75" r="6" fill="#FF6B6B" stroke="#2D3436" stroke-width="2.5"/>
+            <circle cx="150" cy="60" r="5" fill="#FF6B6B" stroke="#2D3436" stroke-width="2.5"/>
+            <circle cx="285" cy="75" r="6" fill="#FF6B6B" stroke="#2D3436" stroke-width="2.5"/>
+            <circle cx="250" cy="60" r="5" fill="#FF6B6B" stroke="#2D3436" stroke-width="2.5"/>
+        </g>
+    </g>
+    
+    <!-- ========== 装饰元素 ========== -->
+    <!-- 闪光星星 -->
+    <g fill="#FFD700" stroke="#2D3436" stroke-width="1.5">
+        <path d="M55,150 L59,163 L72,163 L62,172 L66,185 L55,176 L44,185 L48,172 L38,163 L51,163 Z"/>
+        <path d="M345,150 L349,163 L362,163 L352,172 L356,185 L345,176 L334,185 L338,172 L328,163 L341,163 Z"/>
+    </g>
+    
+    <!-- 小辣椒 -->
+    <g>
+        <path d="M45,200 Q54,194 58,206 Q63,225 57,242 Q48,255 40,246 Q35,234 40,215 Q37,203 45,200" 
+              fill="#FF5722" stroke="#2D3436" stroke-width="2"/>
+        <path d="M45,200 Q51,186 58,191" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    </g>
+    <g>
+        <path d="M355,200 Q364,194 368,206 Q373,225 367,242 Q358,255 350,246 Q345,234 350,215 Q347,203 355,200" 
+              fill="#FF5722" stroke="#2D3436" stroke-width="2"/>
+        <path d="M355,200 Q361,186 368,191" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    </g>
+    
+    <!-- 动感火花 -->
+    <g stroke="#FF6B6B" stroke-width="2.5" stroke-linecap="round" opacity="0.8">
+        <path d="M95,55 L102,70"/>
+        <path d="M108,48 L113,65"/>
+        <path d="M305,55 L298,70"/>
+        <path d="M292,48 L287,65"/>
+    </g>
+    
+    <!-- 小爱心 -->
+    <path d="M200,95 Q200,85 209,85 Q218,85 218,96 Q218,107 200,122 Q182,107 182,96 Q182,85 191,85 Q200,85 200,95" 
+          fill="#FF6B6B" stroke="#2D3436" stroke-width="2.5"/>
+    
+    <!-- 两侧小爱心 -->
+    <path d="M80,120 Q80,114 85,114 Q90,114 90,121 Q90,128 80,136 Q70,128 70,121 Q70,114 75,114 Q80,114 80,120" 
+          fill="#FFB8B8" stroke="#2D3436" stroke-width="1.5" opacity="0.8"/>
+    <path d="M320,120 Q320,114 325,114 Q330,114 330,121 Q330,128 320,136 Q310,128 310,121 Q310,114 315,114 Q320,114 320,120" 
+          fill="#FFB8B8" stroke="#2D3436" stroke-width="1.5" opacity="0.8"/>
+    
+    <!-- ========== 品牌文字 ========== -->
+    <text x="200" y="320" 
+          font-family="'Arial Rounded MT Bold', 'Microsoft YaHei', sans-serif" 
+          font-size="48" 
+          font-weight="bold"
+          text-anchor="middle" 
+          fill="#2D3436"
+          letter-spacing="2">
+        <tspan fill="#FF6B6B">M</tspan><tspan>ala</tspan><tspan fill="#FF6B6B">C</tspan><tspan>law</tspan>
+    </text>
+    
+    <!-- SLOGAN -->
+    <text x="200" y="355" 
+          font-family="'Microsoft YaHei', sans-serif" 
+          font-size="16" 
+          text-anchor="middle" 
+          fill="#636E72"
+          letter-spacing="4">
+        麻辣麻辣，AI 到家！
+    </text>
+    
+    <!-- 底部装饰波浪 -->
+    <path d="M100,375 Q125,368 150,375 Q175,382 200,375 Q225,368 250,375 Q275,382 300,375" 
+          stroke="#FF6B6B" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.6"/>
+    
+</svg>

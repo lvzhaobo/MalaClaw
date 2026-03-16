@@ -1,0 +1,22 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+    <!-- Favicon 简化版 - 麻辣小龙虾主题 -->
+    
+    <!-- 虾钳主体 -->
+    <path d="M20,32 L44,32 L42,42 Q41,46 36,46 L30,46 Q25,46 24,42 Z" 
+          fill="#E74C3C" stroke="#C0392B" stroke-width="1.5"/>
+    
+    <path d="M20,30 L44,30 L43,24 Q42,20 37,20 L29,20 Q24,20 23,24 Z" 
+          fill="#E74C3C" stroke="#C0392B" stroke-width="1.5"/>
+    
+    <!-- AI 芯片（嵌入钳子） -->
+    <rect x="28" y="22" width="8" height="8" rx="1" 
+          fill="#3498DB" stroke="#2980B9" stroke-width="1"/>
+    
+    <!-- M 字母 -->
+    <path d="M30,28 L30,24 L32,27 L34,24 L34,28" 
+          stroke="#E74C3C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    
+    <!-- 麻辣火花点缀 -->
+    <circle cx="46" cy="22" r="2" fill="#F1C40F" opacity="0.9"/>
+    <circle cx="18" cy="28" r="1.5" fill="#F39C12" opacity="0.7"/>
+</svg>

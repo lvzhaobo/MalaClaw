@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>每日推送 - MalaClaw</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.6.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/malaclaw.css">
+    <style>
+        :root {
+            --mala-red: #E74C3C;
+            --mala-dark-red: #C0392B;
+            --dark-gray: #2C3E50;
+        }
+        
+        /* 统计卡片样式 */
+        .stat-card {
+            text-align: center;
+            padding: 25px;
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+        }
+        
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--mala-red);
+            margin: 10px 0;
+        }
+        
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 侧边栏 -->
+    <div class="sidebar">
+        <a href="/" class="sidebar-brand">
+            <img src="/logo.svg" alt="MalaClaw">
+            <div class="sidebar-brand-text">
+                MalaClaw<br>
+                <small>麻辣爪控制台</small>
+            </div>
+        </a>
+        
+        <ul class="sidebar-menu">
+            <li><a href="/"><i class="fas fa-home"></i>控制台首页</a></li>
+            <li><a href="/scenarios"><i class="fas fa-store"></i>场景商城</a></li>
+            <li><a href="/daily_push" class="active"><i class="fas fa-bell"></i>每日推送</a></li>
+            <li><a href="/todos"><i class="fas fa-tasks"></i>任务管理</a></li>
+            <li><a href="/config"><i class="fas fa-cog"></i>系统设置</a></li>
+        </ul>
+    </div>
+    
+    <!-- 主内容区 -->
+    <div class="main-content">
+        <!-- 顶部导航 -->
+        <div class="top-navbar">
+            <div>
+                <h4>每日推送</h4>
+                <small>配置定时消息推送任务</small>
+            </div>
+            <div>
+                <span class="badge badge-success"><i class="fas fa-check-circle"></i> 服务正常</span>
+            </div>
+        </div>
+        <!-- 统计卡片 -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card stat-card">
+                    <i class="fas fa-paper-plane" style="font-size: 32px; color: #3498DB;"></i>
+                    <div class="stat-number" id="today-push-count">0</div>
+                    <div class="stat-label">今日推送</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card">
+                    <i class="fas fa-clock" style="font-size: 32px; color: #f39c12;"></i>
+                    <div class="stat-number" id="active-tasks-count">0</div>
+                    <div class="stat-label">活跃任务</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card">
+                    <i class="fas fa-check-circle" style="font-size: 32px; color: #27ae60;"></i>
+                    <div class="stat-number" id="success-rate">100%</div>
+                    <div class="stat-label">成功率</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card">
+                    <i class="fas fa-broadcast-tower" style="font-size: 32px; color: #9b59b6;"></i>
+                    <div class="stat-number" id="channels-count">4</div>
+                    <div class="stat-label">推送渠道</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- 左侧：场景选择 -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-th-large section-icon"></i>选择推送场景
+                    </div>
+                    <div class="card-body">
+                        <!-- 场景1: 每日晨报 -->
+                        <div class="card scene-card mb-3" onclick="selectScene('morning_report')">
+                            <div class="card-body text-center">
+                                <div class="scene-icon"><i class="fas fa-sun"></i></div>
+                                <h5>每日晨报</h5>
+                                <p class="text-muted small">自动汇总昨日数据，生成晨报推送到群</p>
+                                <span class="badge badge-success">高频使用</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 场景2: 数据监控告警 -->
+                        <div class="card scene-card mb-3 active" onclick="selectScene('data_monitor')">
+                            <div class="card-body text-center">
+                                <div class="scene-icon"><i class="fas fa-chart-line"></i></div>
+                                <h5>数据监控告警</h5>
+                                <p class="text-muted small">监控业务指标，异常时自动告警</p>
+                                <span class="badge badge-primary">实时监控</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 场景3: 定时任务提醒 -->
+                        <div class="card scene-card mb-3" onclick="selectScene('task_reminder')">
+                            <div class="card-body text-center">
+                                <div class="scene-icon"><i class="fas fa-tasks"></i></div>
+                                <h5>定时任务提醒</h5>
+                                <p class="text-muted small">定时提醒待办事项、会议、截止日期</p>
+                                <span class="badge badge-info">智能提醒</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 场景4: 周报月报生成 -->
+                        <div class="card scene-card" onclick="selectScene('report_auto')">
+                            <div class="card-body text-center">
+                                <div class="scene-icon"><i class="fas fa-file-alt"></i></div>
+                                <h5>周报月报生成</h5>
+                                <p class="text-muted small">自动汇总工作数据，生成周期性报告</p>
+                                <span class="badge badge-warning">自动化</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧：场景配置和预览 -->
+            <div class="col-md-8">
+                <!-- 场景配置 -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-cog section-icon"></i>
+                        <span id="config-title">数据监控告警配置</span>
+                    </div>
+                    <div class="card-body">
+                        <form id="push-config-form">
+                            <!-- 推送渠道选择 -->
+                            <div class="form-group">
+                                <label class="font-weight-bold">推送渠道</label>
+                                <div class="mt-2">
+                                    <span class="channel-badge channel-feishu selected" onclick="toggleChannel(this)">
+                                        <i class="fas fa-check-circle mr-1"></i> 飞书
+                                    </span>
+                                    <span class="channel-badge channel-wechat" onclick="toggleChannel(this)">
+                                        <i class="fab fa-weixin mr-1"></i> 企业微信
+                                    </span>
+                                    <span class="channel-badge channel-dingtalk" onclick="toggleChannel(this)">
+                                        <i class="fas fa-dingding mr-1"></i> 钉钉
+                                    </span>
+                                    <span class="channel-badge channel-email" onclick="toggleChannel(this)">
+                                        <i class="fas fa-envelope mr-1"></i> 邮件
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- 推送频率设置 -->
+                            <div class="form-group">
+                                <label class="font-weight-bold">推送频率</label>
+                                <select class="form-control" id="schedule-type" onchange="onScheduleTypeChange()">
+                                    <option value="minute">每分钟</option>
+                                    <option value="hourly">每小时</option>
+                                    <option value="daily" selected>每天</option>
+                                    <option value="weekly">每周</option>
+                                    <option value="custom">自定义 Cron</option>
+                                </select>
+                            </div>
+                            
+                            <!-- 每分钟设置 -->
+                            <div id="minute-config" class="schedule-config" style="display:none;">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i> 任务将每分钟执行一次
+                                </div>
+                            </div>
+                            
+                            <!-- 每小时设置 -->
+                            <div id="hourly-config" class="schedule-config" style="display:none;">
+                                <label>在每小时的第几分钟执行</label>
+                                <select class="form-control" id="hourly-minute">
+                                    <option value="0">00 分</option>
+                                    <option value="15">15 分</option>
+                                    <option value="30" selected>30 分</option>
+                                    <option value="45">45 分</option>
+                                </select>
+                            </div>
+                            
+                            <!-- 每天设置 -->
+                            <div id="daily-config" class="schedule-config">
+                                <label>执行时间</label>
+                                <input type="time" class="form-control" id="daily-time" value="09:00">
+                            </div>
+                            
+                            <!-- 每周设置 -->
+                            <div id="weekly-config" class="schedule-config" style="display:none;">
+                                <div class="form-group">
+                                    <label>选择星期</label>
+                                    <div class="btn-group btn-group-toggle d-flex" data-toggle="buttons">
+                                        <label class="btn btn-outline-secondary flex-fill active">
+                                            <input type="checkbox" name="weekday" value="1" checked> 一
+                                        </label>
+                                        <label class="btn btn-outline-secondary flex-fill active">
+                                            <input type="checkbox" name="weekday" value="2" checked> 二
+                                        </label>
+                                        <label class="btn btn-outline-secondary flex-fill active">
+                                            <input type="checkbox" name="weekday" value="3" checked> 三
+                                        </label>
+                                        <label class="btn btn-outline-secondary flex-fill active">
+                                            <input type="checkbox" name="weekday" value="4" checked> 四
+                                        </label>
+                                        <label class="btn btn-outline-secondary flex-fill active">
+                                            <input type="checkbox" name="weekday" value="5" checked> 五
+                                        </label>
+                                        <label class="btn btn-outline-secondary flex-fill">
+                                            <input type="checkbox" name="weekday" value="6"> 六
+                                        </label>
+                                        <label class="btn btn-outline-secondary flex-fill">
+                                            <input type="checkbox" name="weekday" value="0"> 日
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>执行时间</label>
+                                    <input type="time" class="form-control" id="weekly-time" value="09:00">
+                                </div>
+                            </div>
+                            
+                            <!-- 自定义 Cron -->
+                            <div id="custom-config" class="schedule-config" style="display:none;">
+                                <label>Cron 表达式</label>
+                                <input type="text" class="form-control" id="custom-cron" placeholder="如：0 9 * * 1-5">
+                                <small class="form-text text-muted">
+                                    格式：分 时 日 月 星期<br>
+                                    示例：<code>0 9 * * 1-5</code> (工作日 9:00) | <code>*/5 * * * *</code> (每5分钟)
+                                </small>
+                            </div>
+                            
+                            <!-- 生成的 Cron 预览 -->
+                            <div class="form-group mt-3">
+                                <label class="font-weight-bold">生成的 Cron 表达式</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="generated-cron" readonly>
+                                    <div class="input-group-append">
+                                        <span class="input-group-text text-muted" id="cron-desc">每天 09:00</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 动态配置项 -->
+                            <div id="dynamic-config">
+                                <!-- 数据监控告警配置 -->
+                                <div class="form-group">
+                                    <label>监控指标</label>
+                                    <select class="form-control" id="monitor-metric">
+                                        <option value="server_cpu">服务器 CPU 使用率</option>
+                                        <option value="server_memory">服务器内存使用率</option>
+                                        <option value="api_error_rate">API 错误率</option>
+                                        <option value="response_time">接口响应时间</option>
+                                        <option value="business_data">业务数据指标</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>告警阈值 (%)</label>
+                                    <input type="number" class="form-control" id="alert-threshold" value="80" min="1" max="100">
+                                </div>
+                            </div>
+
+                            <!-- 接收方式选择 -->
+                            <div class="form-group">
+                                <label class="font-weight-bold">接收方式</label>
+                                <div class="btn-group btn-group-toggle d-flex" data-toggle="buttons">
+                                    <label class="btn btn-outline-primary active flex-fill" onclick="onReceiverTypeChange('feishu')">
+                                        <input type="radio" name="receiver-type" value="feishu" checked>
+                                        <i class="fas fa-comment-dots"></i> 飞书
+                                    </label>
+                                    <label class="btn btn-outline-primary flex-fill" onclick="onReceiverTypeChange('email')">
+                                        <input type="radio" name="receiver-type" value="email">
+                                        <i class="fas fa-envelope"></i> 邮件
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- 飞书接收配置 -->
+                            <div id="feishu-receiver-config">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">选择飞书群</label>
+                                    <div class="input-group">
+                                        <select class="form-control" id="feishu-chat-select">
+                                            <option value="">请选择群聊...</option>
+                                        </select>
+                                        <div class="input-group-append">
+                                            <button class="btn btn-outline-secondary" type="button" onclick="loadFeishuChats()">
+                                                <i class="fas fa-sync"></i> 刷新
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <small class="form-text text-muted">
+                                        💡 <strong>提示：</strong>点击"刷新"获取群列表（需要配置 App ID 和 App Secret）。如无法获取，请直接在下方输入群 ID。
+                                    </small>
+                                </div>
+                                                            
+                                <div class="form-group">
+                                    <label class="font-weight-bold">或手动输入接收人 ID</label>
+                                    <input type="text" class="form-control" id="receiver-id" placeholder="群 ID(chat_id) 或用户 ID(open_id)">
+                                    <small class="form-text text-muted">
+                                        📝 <strong>如何获取群 ID？</strong><br>
+                                        • 方法 1：点击上方"刷新"按钮从列表中选择<br>
+                                        • 方法 2：在飞书网页版打开群聊，URL 中的 cid_xxxxxx 就是 chat_id<br>
+                                        • 方法 3：使用 Webhook 方式时，只能手动输入已知的群 ID
+                                    </small>
+                                </div>
+                                                            
+                                <div class="alert alert-info mt-3">
+                                    <i class="fas fa-info-circle"></i> <strong>两种配置方式：</strong><br>
+                                    • <strong>Webhook 方式</strong>：简单快速，但无法获取群列表，只能发送到固定群<br>
+                                    • <strong>自建应用方式</strong>：功能完整，可获取所有群列表，支持发送到任意群/个人
+                                </div>
+                            </div>
+                            
+                            <!-- 邮件接收配置 -->
+                            <div id="email-receiver-config" style="display:none;">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">收件人邮箱</label>
+                                    <input type="email" class="form-control" id="email-to" placeholder="recipient@example.com">
+                                    <small class="form-text text-muted">多个邮箱用逗号分隔</small>
+                                </div>
+                                <div class="form-group">
+                                    <label class="font-weight-bold">邮件主题</label>
+                                    <input type="text" class="form-control" id="email-subject" placeholder="邮件主题">
+                                </div>
+                                <div class="form-group">
+                                    <label class="font-weight-bold">邮件格式</label>
+                                    <select class="form-control" id="email-format">
+                                        <option value="text">纯文本</option>
+                                        <option value="html">HTML</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <button type="button" class="btn btn-mala" onclick="simulatePush()">
+                                    <i class="fas fa-play"></i> 模拟推送
+                                </button>
+                                <button type="button" class="btn btn-outline-success ml-2" onclick="saveTask()">
+                                    <i class="fas fa-save"></i> 保存为定时任务
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- 消息预览 -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <i class="fas fa-eye section-icon"></i>消息预览
+                    </div>
+                    <div class="card-body">
+                        <div class="message-preview" id="message-preview">
+                            <div class="message-header">
+                                <div class="message-avatar">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <div>
+                                    <div class="font-weight-bold">OpenClaw 监控助手</div>
+                                    <div class="text-muted small">数据监控告警</div>
+                                </div>
+                            </div>
+                            <div class="message-content" id="preview-content">
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle"></i> <strong>告警通知</strong>
+                                </div>
+                                <p><strong>监控指标：</strong>服务器 CPU 使用率</p>
+                                <p><strong>当前值：</strong>85.3%</p>
+                                <p><strong>阈值：</strong>80%</p>
+                                <p><strong>状态：</strong><span class="text-danger">超过阈值</span></p>
+                                <p><strong>时间：</strong>2026-03-16 14:32:15</p>
+                                <hr>
+                                <p class="text-muted small">请尽快检查服务器状态，避免影响业务运行。</p>
+                            </div>
+                            <div class="message-time">
+                                <i class="far fa-clock"></i> 刚刚
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 推送日志 -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <i class="fas fa-history section-icon"></i>推送记录
+                        <button class="btn btn-sm btn-outline-secondary float-right" onclick="loadPushLogs()">
+                            <i class="fas fa-sync"></i> 刷新
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="push-logs-container" style="max-height: 300px; overflow-y: auto;">
+                            <div class="text-center text-muted">
+                                <i class="fas fa-spinner fa-spin"></i> 加载中...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div>
+    
+    <!-- JavaScript -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.6.2/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        let currentScene = 'data_monitor';
+        
+        // 场景配置数据
+        const sceneConfigs = {
+            morning_report: {
+                title: '每日晨报配置',
+                preview: `
+                    <div class="alert alert-info">
+                        <i class="fas fa-sun"></i> <strong>早安！今日晨报</strong>
+                    </div>
+                    <p><strong>📊 昨日数据概览</strong></p>
+                    <ul>
+                        <li>新增用户：1,234 人 (+12%)</li>
+                        <li>订单量：567 单 (+8%)</li>
+                        <li>营收：¥89,432 (+15%)</li>
+                        <li>客诉：3 件 (-50%)</li>
+                    </ul>
+                    <p><strong>📅 今日待办</strong></p>
+                    <ul>
+                        <li>10:00 产品周会</li>
+                        <li>14:00 客户回访</li>
+                        <li>16:00 数据复盘</li>
+                    </ul>
+                    <hr>
+                    <p class="text-muted small">祝您今天工作顺利！☀️</p>
+                `,
+                config: `
+                    <div class="form-group">
+                        <label>报告类型</label>
+                        <select class="form-control">
+                            <option value="sales">销售数据报告</option>
+                            <option value="operation">运营数据报告</option>
+                            <option value="tech">技术运维报告</option>
+                            <option value="custom">自定义报告</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>数据时间范围</label>
+                        <select class="form-control">
+                            <option value="yesterday">昨日</option>
+                            <option value="last7">近7天</option>
+                            <option value="last30">近30天</option>
+                        </select>
+                    </div>
+                `
+            },
+            data_monitor: {
+                title: '数据监控告警配置',
+                preview: `
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i> <strong>告警通知</strong>
+                    </div>
+                    <p><strong>监控指标：</strong>服务器 CPU 使用率</p>
+                    <p><strong>当前值：</strong>85.3%</p>
+                    <p><strong>阈值：</strong>80%</p>
+                    <p><strong>状态：</strong><span class="text-danger">超过阈值</span></p>
+                    <p><strong>时间：</strong>2026-03-16 14:32:15</p>
+                    <hr>
+                    <p class="text-muted small">请尽快检查服务器状态，避免影响业务运行。</p>
+                `,
+                config: `
+                    <div class="form-group">
+                        <label>监控指标</label>
+                        <select class="form-control" id="monitor-metric">
+                            <option value="server_cpu">服务器 CPU 使用率</option>
+                            <option value="server_memory">服务器内存使用率</option>
+                            <option value="api_error_rate">API 错误率</option>
+                            <option value="response_time">接口响应时间</option>
+                            <option value="business_data">业务数据指标</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>告警阈值 (%)</label>
+                        <input type="number" class="form-control" id="alert-threshold" value="80" min="1" max="100">
+                    </div>
+                `
+            },
+            task_reminder: {
+                title: '定时任务提醒配置',
+                preview: `
+                    <div class="alert alert-info">
+                        <i class="fas fa-bell"></i> <strong>任务提醒</strong>
+                    </div>
+                    <p><strong>⏰ 待办事项</strong></p>
+                    <div class="border rounded p-2 mb-2">
+                        <div class="d-flex justify-content-between">
+                            <span>📝 完成季度报告</span>
+                            <span class="text-danger">今天 18:00</span>
+                        </div>
+                    </div>
+                    <div class="border rounded p-2 mb-2">
+                        <div class="d-flex justify-content-between">
+                            <span>📞 客户电话会议</span>
+                            <span class="text-warning">明天 10:00</span>
+                        </div>
+                    </div>
+                    <div class="border rounded p-2">
+                        <div class="d-flex justify-content-between">
+                            <span>✅ 项目进度评审</span>
+                            <span class="text-success">后天 14:00</span>
+                        </div>
+                    </div>
+                    <hr>
+                    <p class="text-muted small">请及时处理，避免延误！</p>
+                `,
+                config: `
+                    <div class="form-group">
+                        <label>提醒类型</label>
+                        <select class="form-control">
+                            <option value="meeting">会议提醒</option>
+                            <option value="deadline">截止日期提醒</option>
+                            <option value="daily">每日待办</option>
+                            <option value="weekly">周计划提醒</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>提前提醒时间</label>
+                        <select class="form-control">
+                            <option value="5">提前 5 分钟</option>
+                            <option value="15">提前 15 分钟</option>
+                            <option value="30">提前 30 分钟</option>
+                            <option value="60">提前 1 小时</option>
+                        </select>
+                    </div>
+                `
+            },
+            report_auto: {
+                title: '周报月报生成配置',
+                preview: `
+                    <div class="alert alert-success">
+                        <i class="fas fa-file-alt"></i> <strong>周报已生成</strong>
+                    </div>
+                    <p><strong>📊 本周工作总结</strong> (3/10 - 3/16)</p>
+                    <p><strong>已完成：</strong></p>
+                    <ul>
+                        <li>✅ 产品需求评审会议</li>
+                        <li>✅ 新版本功能上线</li>
+                        <li>✅ 客户培训 3 场</li>
+                        <li>✅ Bug 修复 12 个</li>
+                    </ul>
+                    <p><strong>进行中：</strong></p>
+                    <ul>
+                        <li>🔄 性能优化专项</li>
+                        <li>🔄 用户反馈整理</li>
+                    </ul>
+                    <p><strong>下周计划：</strong></p>
+                    <ul>
+                        <li>📋 数据迁移方案设计</li>
+                        <li>📋 团队技术分享</li>
+                    </ul>
+                    <hr>
+                    <button class="btn btn-sm btn-primary">查看完整报告</button>
+                `,
+                config: `
+                    <div class="form-group">
+                        <label>报告周期</label>
+                        <select class="form-control">
+                            <option value="daily">日报</option>
+                            <option value="weekly">周报</option>
+                            <option value="monthly">月报</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>数据来源</label>
+                        <select class="form-control" multiple>
+                            <option value="jira" selected>Jira 任务</option>
+                            <option value="git" selected>Git 提交</option>
+                            <option value="meeting">会议纪要</option>
+                            <option value="custom">自定义数据</option>
+                        </select>
+                        <small class="form-text text-muted">按住 Ctrl 多选</small>
+                    </div>
+                `
+            }
+        };
+        
+        // 页面加载
+        $(document).ready(function() {
+            loadPushLogs();
+            updateStats();
+            
+            // 检查飞书配置状态
+            checkFeishuConfig();
+            
+            onScheduleTypeChange(); // 初始化 Cron 显示
+            
+            // 监听时间变化，更新 Cron
+            $('#daily-time, #weekly-time, #hourly-minute, #custom-cron').on('change input', function() {
+                updateGeneratedCron();
+            });
+            
+            // 监听星期选择变化
+            $('input[name="weekday"]').on('change', function() {
+                updateGeneratedCron();
+            });
+            
+            // 检查 URL 参数，从场景商城跳转
+            loadScenarioFromURL();
+        });
+        
+        // 检查飞书配置状态
+        function checkFeishuConfig() {
+            $.get('/api/config/feishu', function(response) {
+                if (response.status === 'success' && response.data) {
+                    const hasWebhook = response.data.webhook;
+                    const hasAppId = response.data.app_id;
+                    const hasAppSecret = response.data.app_secret;
+                    
+                    // 判断使用哪种方式
+                    if (hasAppId && hasAppSecret) {
+                        // 完整 API 方式 - 可以获取群列表
+                        console.log('✓ 飞书自建应用已配置');
+                    } else if (hasWebhook) {
+                        // Webhook 方式 - 不能获取群列表
+                        console.log('⚠ 仅配置了 Webhook，无法获取群列表');
+                        // 可以在页面上显示提示
+                        const $select = $('#feishu-chat-select');
+                        $select.html('<option value="">💡 提示：当前使用 Webhook 方式，无法获取群列表。请直接输入群 ID 或切换到自建应用方式</option>');
+                    } else {
+                        // 未配置
+                        console.log('✗ 飞书未配置');
+                        const $select = $('#feishu-chat-select');
+                        $select.html('<option value="">❌ 飞书未配置，请先在系统设置中配置</option>');
+                    }
+                }
+            }).fail(function() {
+                console.error('获取飞书配置失败');
+            });
+        }
+        
+        // 从 URL 参数加载场景
+        function loadScenarioFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const scene = urlParams.get('scene');
+            const message = urlParams.get('message');
+            
+            if (scene && message) {
+                // 映射场景 ID 到场景卡片
+                const sceneMap = {
+                    'smart_schedule': 'task_reminder',
+                    'email_digest': 'morning_report',
+                    'daily_report': 'morning_report',
+                    'meeting_summary': 'morning_report',
+                    'approval_reminder': 'task_reminder',
+                    'weekly_report': 'report_auto',
+                    'system_monitor': 'data_monitor',
+                    'deploy_notify': 'data_monitor',
+                    'daily_standup': 'morning_report',
+                    'marketing_digest': 'morning_report',
+                    'lead_followup': 'task_reminder',
+                    'ticket_notify': 'data_monitor',
+                    'feedback_digest': 'morning_report',
+                    'data_report': 'morning_report',
+                    'alert_report': 'data_monitor'
+                };
+                
+                const targetScene = sceneMap[scene] || 'morning_report';
+                selectScene(targetScene);
+                
+                // 更新预览内容
+                $('#preview-content').html(`<pre style="white-space: pre-wrap;">${decodeURIComponent(message)}</pre>`);
+                
+                // 显示提示
+                alert('已从场景商城加载场景，请配置接收方式和推送频率后使用！');
+            }
+        }
+        
+        // 推送频率切换
+        function onScheduleTypeChange() {
+            const type = $('#schedule-type').val();
+            
+            // 隐藏所有配置
+            $('.schedule-config').hide();
+            
+            // 显示对应的配置
+            $('#' + type + '-config').show();
+            
+            // 更新生成的 Cron
+            updateGeneratedCron();
+        }
+        
+        // 更新生成的 Cron 表达式
+        function updateGeneratedCron() {
+            const type = $('#schedule-type').val();
+            let cron = '';
+            let desc = '';
+            
+            switch(type) {
+                case 'minute':
+                    cron = '* * * * *';
+                    desc = '每分钟';
+                    break;
+                    
+                case 'hourly':
+                    const minute = $('#hourly-minute').val();
+                    cron = `${minute} * * * *`;
+                    desc = `每小时 ${minute.padStart(2, '0')} 分`;
+                    break;
+                    
+                case 'daily':
+                    const dailyTime = $('#daily-time').val();
+                    const [dailyHour, dailyMin] = dailyTime.split(':');
+                    cron = `${dailyMin} ${dailyHour} * * *`;
+                    desc = `每天 ${dailyTime}`;
+                    break;
+                    
+                case 'weekly':
+                    const weeklyTime = $('#weekly-time').val();
+                    const [weeklyHour, weeklyMin] = weeklyTime.split(':');
+                    const weekdays = [];
+                    $('input[name="weekday"]:checked').each(function() {
+                        weekdays.push($(this).val());
+                    });
+                    if (weekdays.length === 0) {
+                        weekdays.push('1');
+                    }
+                    const weekdayStr = weekdays.length === 7 ? '*' : weekdays.join(',');
+                    cron = `${weeklyMin} ${weeklyHour} * * ${weekdayStr}`;
+                    const weekdayNames = ['日', '一', '二', '三', '四', '五', '六'];
+                    const weekdayDesc = weekdays.map(w => '周' + weekdayNames[parseInt(w)]).join('、');
+                    desc = `每周 ${weekdayDesc} ${weeklyTime}`;
+                    break;
+                    
+                case 'custom':
+                    cron = $('#custom-cron').val() || '* * * * *';
+                    desc = '自定义';
+                    break;
+            }
+            
+            $('#generated-cron').val(cron);
+            $('#cron-desc').text(desc);
+        }
+        
+        // 选择场景
+        function selectScene(scene) {
+            currentScene = scene;
+            
+            // 更新卡片样式
+            $('.scene-card').removeClass('active');
+            $(event.currentTarget).addClass('active');
+            
+            // 更新配置区域
+            const config = sceneConfigs[scene];
+            $('#config-title').text(config.title);
+            $('#dynamic-config').html(config.config);
+            $('#preview-content').html(config.preview);
+        }
+        
+        // 切换渠道选择
+        function toggleChannel(element) {
+            $(element).toggleClass('selected');
+        }
+        
+        // 切换时间选择
+        function toggleTime(element) {
+            $(element).toggleClass('active');
+        }
+        
+        // 加载飞书群列表
+        function loadFeishuChats() {
+            const $select = $('#feishu-chat-select');
+            $select.html('<option value="">加载中...</option>');
+            
+            $.get('/api/feishu/chats', function(response) {
+                $select.html('<option value="">请选择群聊...</option>');
+                
+                if (response.status === 'success' && response.data && response.data.length > 0) {
+                    response.data.forEach(function(chat) {
+                        const chatId = chat.chat_id || chat.id;
+                        const chatName = chat.name || '未命名群';
+                        $select.append(`<option value="${chatId}">${chatName}</option>`);
+                    });
+                    
+                    // 显示成功提示
+                    alert(`成功获取 ${response.data.length} 个群聊！`);
+                } else if (response.status === 'error') {
+                    // 显示详细的错误信息
+                    let errorMsg = response.error || '获取失败';
+                    if (errorMsg.indexOf('Webhook') !== -1) {
+                        errorMsg += '\n\n💡 解决方案：\n1. 访问系统设置页面配置飞书 App ID 和 App Secret\n2. 确保应用已添加到飞书群\n3. 检查应用权限是否包含 im:chat';
+                    }
+                    $select.html(`<option value="">${errorMsg}</option>`);
+                    alert('获取群列表失败：' + errorMsg);
+                } else {
+                    $select.html('<option value="">暂无群聊（请确保应用已添加到群）</option>');
+                }
+            }).fail(function(xhr) {
+                const error = xhr.responseJSON?.error || '获取失败';
+                $select.html(`<option value="">获取失败：${error}</option>`);
+                alert('请求失败：' + error);
+            });
+        }
+        
+        // 群选择变化时更新接收人 ID
+        $('#feishu-chat-select').change(function() {
+            const chatId = $(this).val();
+            if (chatId) {
+                $('#receiver-id').val(chatId);
+            }
+        });
+        
+        // 接收方式切换
+        function onReceiverTypeChange(type) {
+            if (type === 'feishu') {
+                $('#feishu-receiver-config').show();
+                $('#email-receiver-config').hide();
+            } else {
+                $('#feishu-receiver-config').hide();
+                $('#email-receiver-config').show();
+            }
+        }
+        
+        // 模拟推送
+        function simulatePush() {
+            const receiverType = $('input[name="receiver-type"]:checked').val();
+            
+            // 显示推送中
+            const btn = $(event.target).closest('button');
+            const originalText = btn.html();
+            btn.html('<i class="fas fa-spinner fa-spin"></i> 发送中...').prop('disabled', true);
+            
+            if (receiverType === 'feishu') {
+                // 飞书发送
+                const receiverId = $('#receiver-id').val().trim();
+                if (!receiverId) {
+                    alert('请选择或输入接收人 ID');
+                    btn.html(originalText).prop('disabled', false);
+                    return;
+                }
+                
+                const content = $('#preview-content').text().trim();
+                
+                $.ajax({
+                    url: '/api/feishu/send',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        content: content.substring(0, 500),
+                        receiver_type: 'group',
+                        receiver_id: receiverId,
+                        msg_type: 'text'
+                    }),
+                    success: function(response) {
+                        btn.html(originalText).prop('disabled', false);
+                        addPushLog({
+                            scene: currentScene,
+                            channels: ['飞书'],
+                            status: 'success',
+                            time: new Date().toLocaleString()
+                        });
+                        alert('飞书消息发送成功！');
+                        updateStats();
+                        loadPushLogs();
+                    },
+                    error: function(xhr) {
+                        btn.html(originalText).prop('disabled', false);
+                        const error = xhr.responseJSON?.error || '发送失败';
+                        alert('发送失败：' + error);
+                    }
+                });
+            } else {
+                // 邮件发送
+                const emailTo = $('#email-to').val().trim();
+                const emailSubject = $('#email-subject').val().trim();
+                const emailFormat = $('#email-format').val();
+                
+                if (!emailTo) {
+                    alert('请输入收件人邮箱');
+                    btn.html(originalText).prop('disabled', false);
+                    return;
+                }
+                
+                if (!emailSubject) {
+                    alert('请输入邮件主题');
+                    btn.html(originalText).prop('disabled', false);
+                    return;
+                }
+                
+                const content = $('#preview-content').html(); // 使用 HTML 内容
+                
+                $.ajax({
+                    url: '/api/email/send',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        to_address: emailTo,
+                        subject: emailSubject,
+                        content: content,
+                        is_html: emailFormat === 'html'
+                    }),
+                    success: function(response) {
+                        btn.html(originalText).prop('disabled', false);
+                        addPushLog({
+                            scene: currentScene,
+                            channels: ['邮件'],
+                            status: 'success',
+                            time: new Date().toLocaleString()
+                        });
+                        alert('邮件发送成功！');
+                        updateStats();
+                        loadPushLogs();
+                    },
+                    error: function(xhr) {
+                        btn.html(originalText).prop('disabled', false);
+                        const error = xhr.responseJSON?.error || '发送失败';
+                        alert('邮件发送失败：' + error);
+                    }
+                });
+            }
+        }
+        
+        // 保存为定时任务
+        function saveTask() {
+            const cron = $('#generated-cron').val();
+            const receiverType = $('input[name="receiver-type"]:checked').val();
+            const sceneNames = {
+                morning_report: '每日晨报',
+                data_monitor: '数据监控告警',
+                task_reminder: '定时任务提醒',
+                report_auto: '周报月报生成'
+            };
+            
+            let taskData = {
+                id: currentScene + '_' + Date.now(),
+                name: sceneNames[currentScene],
+                cron: cron
+            };
+            
+            if (receiverType === 'feishu') {
+                const receiverId = $('#receiver-id').val().trim();
+                if (!receiverId) {
+                    alert('请选择或输入接收人 ID');
+                    return;
+                }
+                taskData.agent_id = 'feishu_agent';
+                taskData.skill_id = 'feishu_message';
+                taskData.params = {
+                    content: $('#preview-content').text().trim().substring(0, 500),
+                    receiver_type: 'group',
+                    receiver_id: receiverId
+                };
+            } else {
+                const emailTo = $('#email-to').val().trim();
+                const emailSubject = $('#email-subject').val().trim();
+                if (!emailTo || !emailSubject) {
+                    alert('请输入收件人邮箱和邮件主题');
+                    return;
+                }
+                taskData.agent_id = 'service_agent';
+                taskData.skill_id = 'email_send';
+                taskData.params = {
+                    to_address: emailTo,
+                    subject: emailSubject,
+                    content: $('#preview-content').text().trim().substring(0, 1000)
+                };
+            }
+            
+            // 显示保存中
+            const btn = $(event.target).closest('button');
+            const originalText = btn.html();
+            btn.html('<i class="fas fa-spinner fa-spin"></i> 保存中...').prop('disabled', true);
+            
+            // 调用 API 创建任务
+            $.ajax({
+                url: '/api/jobs',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(taskData),
+                success: function(response) {
+                    btn.html(originalText).prop('disabled', false);
+                    alert('定时任务保存成功！Cron: ' + cron);
+                },
+                error: function(xhr) {
+                    btn.html(originalText).prop('disabled', false);
+                    const error = xhr.responseJSON?.error || '保存失败';
+                    alert('保存失败：' + error);
+                }
+            });
+        }
+        
+        // 添加推送日志
+        function addPushLog(log) {
+            const sceneNames = {
+                morning_report: '每日晨报',
+                data_monitor: '数据监控告警',
+                task_reminder: '定时任务提醒',
+                report_auto: '周报月报生成'
+            };
+            
+            const logHtml = `
+                <div class="log-entry log-success">
+                    <strong>[${log.time}]</strong> 
+                    <span class="badge badge-success">成功</span>
+                    <strong>${sceneNames[log.scene]}</strong> → ${log.channels.join(', ')}
+                </div>
+            `;
+            
+            $('#push-logs-container').prepend(logHtml);
+        }
+        
+        // 加载推送日志
+        function loadPushLogs() {
+            // 模拟日志数据
+            const logs = [
+                {
+                    scene: 'data_monitor',
+                    channels: ['飞书'],
+                    status: 'success',
+                    time: '2026-03-16 14:30:00'
+                },
+                {
+                    scene: 'morning_report',
+                    channels: ['飞书', '邮件'],
+                    status: 'success',
+                    time: '2026-03-16 09:00:00'
+                },
+                {
+                    scene: 'task_reminder',
+                    channels: ['企业微信'],
+                    status: 'success',
+                    time: '2026-03-15 18:00:00'
+                }
+            ];
+            
+            const container = $('#push-logs-container');
+            container.empty();
+            
+            const sceneNames = {
+                morning_report: '每日晨报',
+                data_monitor: '数据监控告警',
+                task_reminder: '定时任务提醒',
+                report_auto: '周报月报生成'
+            };
+            
+            logs.forEach(log => {
+                const logHtml = `
+                    <div class="log-entry log-success">
+                        <strong>[${log.time}]</strong> 
+                        <span class="badge badge-success">成功</span>
+                        <strong>${sceneNames[log.scene]}</strong> → ${log.channels.join(', ')}
+                    </div>
+                `;
+                container.append(logHtml);
+            });
+        }
+        
+        // 更新统计数据
+        function updateStats() {
+            $('#today-push-count').text(Math.floor(Math.random() * 10) + 5);
+            $('#active-tasks-count').text(Math.floor(Math.random() * 5) + 3);
+        }
+    </script>
+</body>
+</html>

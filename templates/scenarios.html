@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>场景商城 - MalaClaw</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.6.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/malaclaw.css">
+</head>
+<body>
+    <!-- 侧边栏 -->
+    <div class="sidebar">
+        <a href="/" class="sidebar-brand">
+            <img src="logo.svg" alt="MalaClaw">
+            <div class="sidebar-brand-text">
+                MalaClaw<br>
+                <small style="font-size: 12px; color: #7f8c8d;">麻辣小龙虾</small>
+            </div>
+        </a>
+        
+        <ul class="sidebar-menu">
+            <li><a href="/"><i class="fas fa-home"></i>控制台首页</a></li>
+            <li><a href="/scenarios" class="active"><i class="fas fa-store"></i>场景商城</a></li>
+            <li><a href="/daily_push"><i class="fas fa-bell"></i>每日推送</a></li>
+            <li><a href="/todos"><i class="fas fa-tasks"></i>任务管理</a></li>
+            <li><a href="/config"><i class="fas fa-cog"></i>系统设置</a></li>
+        </ul>
+    </div>
+    
+    <!-- 主内容区 -->
+    <div class="main-content">
+        <!-- 顶部导航 -->
+        <!--<div class="top-navbar">
+            <div>
+                <h4 style="margin: 0; color: var(--dark-gray);">场景商城</h4>
+                <small style="color: #7f8c8d;">基于 MalaClaw 核心能力的 AI Agent 应用场景</small>
+            </div>
+            <div>
+                <span class="stats-badge"><i class="fas fa-cube"></i> <span id="total-scenes">0</span> 个场景</span>
+                <span class="stats-badge"><i class="fas fa-check-circle"></i> <span id="ready-scenes">0</span> 个可用</span>
+            </div>
+        </div>-->
+        <!-- 统计概览 -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-1">场景商城</h5>
+                            <p class="text-muted mb-0">基于 MalaClaw 核心能力，覆盖多行业、多技术的 AI Agent 应用场景</p>
+                        </div>
+                        <div>
+                            <span class="stats-badge"><i class="fas fa-cube"></i> <span id="total-scenes">0</span> 个场景</span>
+                            <span class="stats-badge"><i class="fas fa-check-circle"></i> <span id="ready-scenes">0</span> 个可用</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 分类筛选 -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-filter section-icon"></i>场景分类
+                    </div>
+                    <div class="card-body">
+                        <button class="btn btn-outline-mala filter-btn active" onclick="filterScenarios('all')">全部</button>
+                        <button class="btn btn-outline-secondary filter-btn" onclick="filterScenarios('productivity')">个人生产力</button>
+                        <button class="btn btn-outline-secondary filter-btn" onclick="filterScenarios('enterprise')">企业办公</button>
+                        <button class="btn btn-outline-secondary filter-btn" onclick="filterScenarios('devops')">开发运维</button>
+                        <button class="btn btn-outline-secondary filter-btn" onclick="filterScenarios('marketing')">营销销售</button>
+                        <button class="btn btn-outline-secondary filter-btn" onclick="filterScenarios('service')">客户服务</button>
+                        <button class="btn btn-outline-secondary filter-btn" onclick="filterScenarios('data')">数据分析</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 场景列表 -->
+        <div class="row" id="scenarios-container">
+            <!-- 场景卡片将通过 JavaScript 动态生成 -->
+        </div>
+    </div>
+
+    <!-- 场景详情模态框 -->
+    <div class="modal fade" id="scenarioModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-title">场景详情</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="modal-content">
+                        <!-- 动态内容 -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-mala" id="modal-action-btn" onclick="useScenario()">
+                        <i class="fas fa-play"></i> 立即体验
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div>
+    
+    <!-- JavaScript -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.6.2/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // 场景数据 - 基于 AI_Agent_使用场景分类与应用指南.md 整理
+        const scenarios = [
+            // 个人生产力场景
+            {
+                id: 'smart_schedule',
+                name: '智能日程管理',
+                category: 'productivity',
+                categoryName: '个人生产力',
+                icon: 'fa-calendar-alt',
+                difficulty: 'easy',
+                difficultyName: '简单',
+                description: '自动管理日程，发送会议提醒和待办通知',
+                features: ['定时推送日程提醒', '每日待办清单', '会议前自动通知'],
+                implementation: '使用定时任务 + 飞书/邮件推送',
+                demoMessage: '📅 今日日程提醒\n\n09:00 - 产品周会\n14:00 - 客户演示\n16:00 - 团队复盘\n\n请提前准备相关材料！'
+            },
+            {
+                id: 'email_digest',
+                name: '邮件智能摘要',
+                category: 'productivity',
+                categoryName: '个人生产力',
+                icon: 'fa-envelope-open-text',
+                difficulty: 'medium',
+                difficultyName: '中等',
+                description: '自动汇总重要邮件，生成每日邮件摘要',
+                features: ['邮件分类摘要', '重要事项提取', '定时推送报告'],
+                implementation: '使用定时任务 + AI生成内容 + 邮件推送',
+                demoMessage: '📧 今日邮件摘要\n\n重要邮件 3 封：\n1. 【产品】Q2 需求评审通知\n2. 【客户】合同签署提醒\n3. 【人事】假期申请审批\n\n详细内容请查看邮箱！'
+            },
+            {
+                id: 'daily_report',
+                name: '每日晨报生成',
+                category: 'productivity',
+                categoryName: '个人生产力',
+                icon: 'fa-sun',
+                difficulty: 'easy',
+                difficultyName: '简单',
+                description: '自动生成每日晨报，汇总昨日数据和今日待办',
+                features: ['昨日数据汇总', '今日待办清单', '天气/日程提醒'],
+                implementation: '使用定时任务 + 模板消息推送',
+                demoMessage: '☀️ 早安！今日晨报\n\n📊 昨日数据：\n- 完成任务：5 项\n- 新增用户：128 人\n\n📅 今日待办：\n- 10:00 产品评审\n- 14:00 客户会议\n\n祝您今天工作顺利！'
+            },
+            
+            // 企业办公场景
+            {
+                id: 'meeting_summary',
+                name: '会议纪要自动化',
+                category: 'enterprise',
+                categoryName: '企业办公',
+                icon: 'fa-users',
+                difficulty: 'medium',
+                difficultyName: '中等',
+                description: '会后自动生成会议纪要并分发给相关人员',
+                features: ['会议录音转文字', '自动生成纪要', '自动分发邮件'],
+                implementation: '使用定时任务 + AI生成 + 邮件/飞书推送',
+                demoMessage: '📝 会议纪要 - 产品周会\n\n时间：2026-03-16 10:00\n参会：张三、李四、王五\n\n决议事项：\n1. Q2 需求已确认，下周启动开发\n2. 客户反馈问题优先级调整\n\n待办：\n@张三 整理需求文档（3/18前）'
+            },
+            {
+                id: 'approval_reminder',
+                name: '审批流程提醒',
+                category: 'enterprise',
+                categoryName: '企业办公',
+                icon: 'fa-clipboard-check',
+                difficulty: 'easy',
+                difficultyName: '简单',
+                description: '自动提醒待审批事项，避免流程阻塞',
+                features: ['待审批汇总', '超时提醒', '自动催办'],
+                implementation: '使用定时任务 + 飞书/邮件推送',
+                demoMessage: '⏰ 审批提醒\n\n您有 3 个待审批事项：\n1. 采购申请 - ￥5,000（已超时 1 天）\n2. 请假申请 - 张三（剩余 2 小时）\n3. 报销申请 - 李四\n\n请及时处理！'
+            },
+            {
+                id: 'weekly_report',
+                name: '周报月报自动生成',
+                category: 'enterprise',
+                categoryName: '企业办公',
+                icon: 'fa-file-alt',
+                difficulty: 'medium',
+                difficultyName: '中等',
+                description: '自动汇总工作数据，生成周期性报告',
+                features: ['自动数据汇总', '报告模板生成', '定时推送'],
+                implementation: '使用定时任务 + 模板消息 + 邮件推送',
+                demoMessage: '📊 本周工作周报\n\n已完成：\n✅ 产品需求评审\n✅ 客户培训 3 场\n✅ Bug 修复 12 个\n\n进行中：\n🔄 性能优化专项\n\n下周计划：\n📋 数据迁移方案设计'
+            },
+            
+            // 开发运维场景
+            {
+                id: 'system_monitor',
+                name: '系统监控告警',
+                category: 'devops',
+                categoryName: '开发运维',
+                icon: 'fa-server',
+                difficulty: 'medium',
+                difficultyName: '中等',
+                description: '监控系统指标，异常时自动告警通知',
+                features: ['CPU/内存监控', '异常自动告警', '告警升级策略'],
+                implementation: '使用定时任务 + 数据监控 + 多渠道推送',
+                demoMessage: '⚠️ 系统告警\n\n监控指标：服务器 CPU 使用率\n当前值：85.3%\n阈值：80%\n状态：超过阈值\n\n请尽快检查服务器状态！'
+            },
+            {
+                id: 'deploy_notify',
+                name: '发布部署通知',
+                category: 'devops',
+                categoryName: '开发运维',
+                icon: 'fa-rocket',
+                difficulty: 'easy',
+                difficultyName: '简单',
+                description: '自动发送部署通知，汇总版本变更内容',
+                features: ['部署前通知', '变更内容汇总', '部署结果反馈'],
+                implementation: '使用 Webhook/API + 飞书/邮件推送',
+                demoMessage: '🚀 版本发布通知\n\n版本：v2.3.0\n时间：2026-03-16 14:00\n发布人：张三\n\n变更内容：\n- 新增：数据统计模块\n- 修复：登录异常问题\n- 优化：查询性能提升 30%'
+            },
+            {
+                id: 'daily_standup',
+                name: '每日站会汇总',
+                category: 'devops',
+                categoryName: '开发运维',
+                icon: 'fa-comments',
+                difficulty: 'easy',
+                difficultyName: '简单',
+                description: '自动收集团队成员昨日完成和今日计划',
+                features: ['站会提醒', '进度汇总', '阻塞问题跟踪'],
+                implementation: '使用定时任务 + 飞书群推送',
+                demoMessage: '📋 每日站会汇总\n\n昨日完成：\n- 张三：完成 API 接口开发\n- 李四：修复 3 个前端 Bug\n\n今日计划：\n- 张三：联调测试\n- 李四：优化页面性能\n\n阻塞问题：无'
+            },
+            
+            // 营销销售场景
+            {
+                id: 'marketing_digest',
+                name: '营销日报推送',
+                category: 'marketing',
+                categoryName: '营销销售',
+                icon: 'fa-bullhorn',
+                difficulty: 'easy',
+                difficultyName: '简单',
+                description: '自动汇总营销数据，推送每日营销简报',
+                features: ['投放数据汇总', '线索统计', '效果分析'],
+                implementation: '使用定时任务 + 数据汇总 + 邮件推送',
+                demoMessage: '📈 营销日报\n\n昨日数据：\n- 广告投放：￥2,500\n- 获取线索：45 条\n- 转化成本：￥55/条\n\n本周累计：\n- 总投放：￥15,000\n- 总线索：280 条'
+            },
+            {
+                id: 'lead_followup',
+                name: '销售线索跟进提醒',
+                category: 'marketing',
+                categoryName: '营销销售',
+                icon: 'fa-user-plus',
+                difficulty: 'medium',
+                difficultyName: '中等',
+                description: '自动提醒销售跟进线索，避免遗漏商机',
+                features: ['线索分配提醒', '跟进超时预警', '成交庆祝通知'],
+                implementation: '使用定时任务 + CRM集成 + 飞书推送',
+                demoMessage: '💼 线索跟进提醒\n\n待跟进线索：\n1. 李总 - 产品咨询（已分配 2 天）\n2. 王经理 - 方案报价（高意向）\n3. 张总监 - 试用申请（今日新增）\n\n请及时跟进！'
+            },
+            
+            // 客户服务场景
+            {
+                id: 'ticket_notify',
+                name: '工单处理通知',
+                category: 'service',
+                categoryName: '客户服务',
+                icon: 'fa-ticket-alt',
+                difficulty: 'easy',
+                difficultyName: '简单',
+                description: '自动通知工单状态变更，提醒及时处理',
+                features: ['新工单提醒', '超时预警', '满意度回访'],
+                implementation: '使用定时任务 + 飞书/邮件推送',
+                demoMessage: '🎫 工单提醒\n\n待处理工单：5 个\n\n紧急：\n- #1234 系统无法登录（已超时）\n\n普通：\n- #1235 数据导出问题\n- #1236 密码重置申请\n\n请及时处理！'
+            },
+            {
+                id: 'feedback_digest',
+                name: '客户反馈日报',
+                category: 'service',
+                categoryName: '客户服务',
+                icon: 'fa-smile',
+                difficulty: 'medium',
+                difficultyName: '中等',
+                description: '自动汇总客户反馈，生成每日反馈报告',
+                features: ['反馈分类汇总', '情感分析', '热点问题识别'],
+                implementation: '使用定时任务 + AI分析 + 邮件推送',
+                demoMessage: '😊 客户反馈日报\n\n昨日反馈：12 条\n\n满意度：92%\n\n热点问题：\n1. 新功能使用咨询（5条）\n2. 性能优化建议（3条）\n3. 其他问题（4条）\n\n详见反馈系统！'
+            },
+            
+            // 数据分析场景
+            {
+                id: 'data_report',
+                name: '经营数据日报',
+                category: 'data',
+                categoryName: '数据分析',
+                icon: 'fa-chart-bar',
+                difficulty: 'medium',
+                difficultyName: '中等',
+                description: '自动汇总经营数据，推送每日数据简报',
+                features: ['核心指标汇总', '环比/同比分析', '异常预警'],
+                implementation: '使用定时任务 + 数据查询 + 邮件推送',
+                demoMessage: '📊 经营数据日报\n\n昨日核心指标：\n- GMV：￥128,500 (+12%)\n- 订单量：456 单 (+8%)\n- 客单价：￥282 (+3%)\n- 退款率：2.1% (-0.5%)\n\n表现良好！'
+            },
+            {
+                id: 'alert_report',
+                name: '数据异常告警',
+                category: 'data',
+                categoryName: '数据分析',
+                icon: 'fa-exclamation-triangle',
+                difficulty: 'medium',
+                difficultyName: '中等',
+                description: '监控业务指标，异常时立即告警',
+                features: ['多指标监控', '智能阈值', '告警分级'],
+                implementation: '使用定时任务 + 数据监控 + 多渠道推送',
+                demoMessage: '⚠️ 数据异常告警\n\n指标：订单转化率\n当前值：3.2%\n正常值：5.5%\n偏差：-42%\n\n请关注并排查原因！'
+            }
+        ];
+        
+        let currentScenario = null;
+        
+        // 页面加载
+        $(document).ready(function() {
+            renderScenarios('all');
+            updateStats();
+        });
+        
+        // 更新统计
+        function updateStats() {
+            $('#total-scenes').text(scenarios.length);
+            $('#ready-scenes').text(scenarios.filter(s => s.difficulty === 'easy').length);
+        }
+        
+        // 渲染场景列表
+        function renderScenarios(filter) {
+            const container = $('#scenarios-container');
+            container.empty();
+            
+            const filtered = filter === 'all' 
+                ? scenarios 
+                : scenarios.filter(s => s.category === filter);
+            
+            filtered.forEach(scenario => {
+                const card = `
+                    <div class="col-md-4 mb-4">
+                        <div class="card scenario-card" onclick="showScenarioDetail('${scenario.id}')">
+                            <div class="card-body position-relative">
+                                <span class="difficulty-badge diff-${scenario.difficulty}">${scenario.difficultyName}</span>
+                                <div class="text-center">
+                                    <div class="scenario-icon">
+                                        <i class="fas ${scenario.icon}"></i>
+                                    </div>
+                                    <span class="scenario-category cat-${scenario.category}">${scenario.categoryName}</span>
+                                    <h5 class="mt-2">${scenario.name}</h5>
+                                    <p class="text-muted small">${scenario.description}</p>
+                                </div>
+                                <hr>
+                                <ul class="feature-list pl-3">
+                                    ${scenario.features.map(f => `<li><i class="fas fa-check text-success mr-1"></i>${f}</li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.append(card);
+            });
+        }
+        
+        // 筛选场景
+        function filterScenarios(category) {
+            // 更新按钮状态
+            $('.filter-btn').removeClass('active');
+            $(event.target).addClass('active');
+            
+            // 重新渲染
+            renderScenarios(category);
+        }
+        
+        // 显示场景详情
+        function showScenarioDetail(scenarioId) {
+            currentScenario = scenarios.find(s => s.id === scenarioId);
+            if (!currentScenario) return;
+            
+            $('#modal-title').text(currentScenario.name);
+            $('#modal-content').html(`
+                <div class="row">
+                    <div class="col-md-8">
+                        <h6><i class="fas fa-info-circle text-primary mr-2"></i>场景描述</h6>
+                        <p>${currentScenario.description}</p>
+                        
+                        <h6><i class="fas fa-list-check text-success mr-2"></i>核心功能</h6>
+                        <ul>
+                            ${currentScenario.features.map(f => `<li>${f}</li>`).join('')}
+                        </ul>
+                        
+                        <h6><i class="fas fa-cogs text-info mr-2"></i>实现方式</h6>
+                        <p class="text-muted">${currentScenario.implementation}</p>
+                        
+                        <h6><i class="fas fa-envelope text-warning mr-2"></i>消息预览</h6>
+                        <div class="bg-light p-3 rounded">
+                            <pre class="mb-0" style="white-space: pre-wrap;">${currentScenario.demoMessage}</pre>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6>场景信息</h6>
+                                <p class="mb-1"><strong>分类：</strong>${currentScenario.categoryName}</p>
+                                <p class="mb-1"><strong>难度：</strong>${currentScenario.difficultyName}</p>
+                                <p class="mb-0"><strong>状态：</strong><span class="text-success">可用</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `);
+            
+            $('#scenarioModal').modal('show');
+        }
+        
+        // 使用场景
+        function useScenario() {
+            if (!currentScenario) return;
+            
+            // 跳转到每日推送页面，并携带场景参数
+            const params = new URLSearchParams({
+                scene: currentScenario.id,
+                message: currentScenario.demoMessage
+            });
+            window.location.href = '/daily_push?' + params.toString();
+        }
+    </script>
+</body>
+</html>

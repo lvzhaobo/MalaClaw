@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任务管理 - MalaClaw</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.6.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/malaclaw.css">
+    <style>
+        :root {
+            --mala-red: #E74C3C;
+            --mala-dark-red: #C0392B;
+            --dark-gray: #2C3E50;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        
+        /* 侧边栏 */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 250px;
+            background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+            border-right: 1px solid #e9ecef;
+            padding-top: 20px;
+            z-index: 1000;
+        }
+        
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            padding: 0 20px 30px;
+            text-decoration: none;
+            color: var(--dark-gray);
+        }
+        
+        .sidebar-brand img {
+            width: 50px;
+            height: 50px;
+            margin-right: 12px;
+        }
+        
+        .sidebar-brand-text {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .sidebar-menu li a {
+            display: block;
+            padding: 12px 20px;
+            color: var(--dark-gray);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .sidebar-menu li a:hover,
+        .sidebar-menu li a.active {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--mala-red);
+            border-left: 3px solid var(--mala-red);
+        }
+        
+        .sidebar-menu i {
+            width: 25px;
+            margin-right: 8px;
+        }
+        
+        /* 主内容区 */
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+        }
+        
+        /* 顶部导航 */
+        .top-navbar {
+            background: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        /* 按钮样式 */
+        .btn-mala {
+            background-color: var(--mala-red);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+        
+        .btn-mala:hover {
+            background-color: var(--mala-dark-red);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+        }
+        
+        .btn-mala-outline {
+            background-color: transparent;
+            color: var(--mala-red);
+            border: 1px solid var(--mala-red);
+            padding: 10px 24px;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+        
+        .btn-mala-outline:hover {
+            background-color: var(--mala-red);
+            color: white;
+        }
+        
+        /* 统计卡片 */
+        .stat-card {
+            text-align: center;
+            padding: 25px;
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+        }
+        
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--mala-red);
+            margin: 10px 0;
+        }
+        
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        
+        /* 状态徽章 */
+        .status-enabled {
+            color: #27ae60;
+        }
+        
+        .status-disabled {
+            color: #e74c3c;
+        }
+        
+        /* 卡片样式 */
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+        
+        .card-header {
+            background: white;
+            border-bottom: 2px solid #f0f0f0;
+            font-weight: 600;
+            color: var(--dark-gray);
+            border-radius: 12px 12px 0 0 !important;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 侧边栏 -->
+    <div class="sidebar">
+        <a href="/" class="sidebar-brand">
+            <img src="/logo.svg" alt="MalaClaw">
+            <div class="sidebar-brand-text">
+                MalaClaw<br>
+                <small style="font-size: 12px; color: #7f8c8d;">麻辣爪控制台</small>
+            </div>
+        </a>
+        
+        <ul class="sidebar-menu">
+            <li><a href="/"><i class="fas fa-home"></i>控制台首页</a></li>
+            <li><a href="/scenarios"><i class="fas fa-store"></i>场景商城</a></li>
+            <li><a href="/daily_push"><i class="fas fa-bell"></i>每日推送</a></li>
+            <li><a href="/todos" class="active"><i class="fas fa-tasks"></i>任务管理</a></li>
+            <li><a href="/config"><i class="fas fa-cog"></i>系统设置</a></li>
+        </ul>
+    </div>
+    
+    <!-- 主内容区 -->
+    <div class="main-content">
+        <!-- 顶部导航 -->
+        <div class="top-navbar">
+            <div>
+                <h4 style="margin: 0; color: var(--dark-gray);"><i class="fas fa-tasks mr-2"></i>任务管理</h4>
+                <small style="color: #7f8c8d;">管理 TODO List，自动推送到云端 Qoder CLI 执行</small>
+            </div>
+            <div class="text-right">
+                <div id="qoder-status" class="status-disabled">
+                    <i class="fas fa-circle"></i> 云端推送未启用
+                </div>
+                <small class="text-muted">上次同步: <span id="last-sync">-</span></small>
+            </div>
+        </div>
+
+        <!-- 统计卡片 -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card stat-card">
+                    <i class="fas fa-list" style="font-size: 32px; color: #3498DB;"></i>
+                    <div class="stat-number" id="total-count">0</div>
+                    <div class="stat-label">总任务数</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card">
+                    <i class="fas fa-clock" style="font-size: 32px; color: #f39c12;"></i>
+                    <div class="stat-number" id="pending-count">0</div>
+                    <div class="stat-label">待处理</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card">
+                    <i class="fas fa-cloud-upload-alt" style="font-size: 32px; color: #27ae60;"></i>
+                    <div class="stat-number" id="pushed-count">0</div>
+                    <div class="stat-label">已推送云端</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card">
+                    <i class="fas fa-exclamation-circle" style="font-size: 32px; color: #e74c3c;"></i>
+                    <div class="stat-number" id="high-priority-count">0</div>
+                    <div class="stat-label">高优先级</div>
+                </div>
+            </div>
+        </div>
+        <!-- 页面标题 -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3><i class="fas fa-tasks text-success mr-2"></i>任务管理</h3>
+                            <p class="text-muted mb-0">管理 TODO List，自动推送到云端 Qoder CLI 执行</p>
+                        </div>
+                        <div class="text-right">
+                            <div id="qoder-status" class="config-status status-disabled">
+                                <i class="fas fa-circle"></i> 云端推送未启用
+                            </div>
+                            <div class="mt-2">
+                                <small class="text-muted">上次同步: <span id="last-sync">-</span></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 统计卡片 -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card stats-card">
+                    <div class="stats-number" id="total-count">0</div>
+                    <div class="stats-label">总任务数</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card">
+                    <div class="stats-number" id="pending-count">0</div>
+                    <div class="stats-label">待处理</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card">
+                    <div class="stats-number" id="pushed-count">0</div>
+                    <div class="stats-label">已推送云端</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card">
+                    <div class="stats-number" id="high-priority-count">0</div>
+                    <div class="stats-label">高优先级</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- 左侧：添加任务 -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-plus-circle mr-2"></i>添加新任务
+                    </div>
+                    <div class="card-body">
+                        <form id="add-todo-form">
+                            <div class="form-group">
+                                <label>任务标题</label>
+                                <input type="text" class="form-control" id="todo-title" placeholder="输入任务标题" required>
+                            </div>
+                            <div class="form-group">
+                                <label>任务描述</label>
+                                <textarea class="form-control" id="todo-description" rows="3" placeholder="输入任务详细描述"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>优先级</label>
+                                <select class="form-control" id="todo-priority">
+                                    <option value="low">低</option>
+                                    <option value="medium" selected>中</option>
+                                    <option value="high">高</option>
+                                </select>
+                            </div>
+                            <div class="form-group form-check">
+                                <input type="checkbox" class="form-check-input" id="todo-auto-push">
+                                <label class="form-check-label" for="todo-auto-push">
+                                    高优先级时自动推送到云端
+                                </label>
+                            </div>
+                            <button type="submit" class="btn btn-mala btn-block">
+                                <i class="fas fa-plus"></i> 添加任务
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- 快捷操作 -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-bolt mr-2"></i>快捷操作
+                    </div>
+                    <div class="card-body">
+                        <button class="btn btn-mala-outline btn-block mb-2" onclick="syncTodos()">
+                            <i class="fas fa-sync"></i> 立即同步 TODO List
+                        </button>
+                        <button class="btn btn-mala-outline btn-block mb-2" onclick="autoPushTodos()">
+                            <i class="fas fa-cloud-upload-alt"></i> 自动决策推送
+                        </button>
+                        <button class="btn btn-outline-secondary btn-block" onclick="loadTodos()">
+                            <i class="fas fa-redo"></i> 刷新列表
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Qoder CLI 配置 -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-cloud mr-2"></i>云端 Qoder CLI 配置
+                    </div>
+                    <div class="card-body">
+                        <form id="qoder-config-form">
+                            <div class="form-group">
+                                <label>云端地址</label>
+                                <input type="url" class="form-control" id="qoder-base-url" placeholder="https://qoder-api.example.com">
+                                <small class="form-text text-muted">Qoder CLI 云端 API 地址</small>
+                            </div>
+                            <div class="form-group">
+                                <label>API Key</label>
+                                <input type="password" class="form-control" id="qoder-api-key" placeholder="输入 API Key">
+                            </div>
+                            <div class="form-group form-check">
+                                <input type="checkbox" class="form-check-input" id="qoder-enabled">
+                                <label class="form-check-label" for="qoder-enabled">
+                                    启用自动推送
+                                </label>
+                            </div>
+                            <button type="submit" class="btn btn-mala btn-block">
+                                <i class="fas fa-save"></i> 保存配置
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧：任务列表 -->
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-list mr-2"></i>任务列表</span>
+                        <span class="badge badge-secondary" id="todo-count-badge">0</span>
+                    </div>
+                    <div class="card-body">
+                        <div id="todos-container">
+                            <div class="text-center text-muted py-5">
+                                <i class="fas fa-spinner fa-spin"></i> 加载中...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 推送日志 -->
+                <div class="card mt-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-history mr-2"></i>推送记录</span>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="loadPushLogs()">
+                            <i class="fas fa-sync"></i> 刷新
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="push-logs-container" style="max-height: 300px; overflow-y: auto;">
+                            <div class="text-center text-muted">
+                                <i class="fas fa-spinner fa-spin"></i> 加载中...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑任务模态框 -->
+    <div class="modal fade" id="editTodoModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">编辑任务</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit-todo-form">
+                        <input type="hidden" id="edit-todo-id">
+                        <div class="form-group">
+                            <label>任务标题</label>
+                            <input type="text" class="form-control" id="edit-todo-title" required>
+                        </div>
+                        <div class="form-group">
+                            <label>任务描述</label>
+                            <textarea class="form-control" id="edit-todo-description" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>优先级</label>
+                            <select class="form-control" id="edit-todo-priority">
+                                <option value="low">低</option>
+                                <option value="medium">中</option>
+                                <option value="high">高</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-mala" onclick="saveEditTodo()">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.6.2/js/bootstrap.min.js"></script>
+    
+    <script>
+        // 页面加载
+        $(document).ready(function() {
+            loadTodos();
+            loadQoderConfig();
+            loadPushLogs();
+            
+            // 定时刷新
+            setInterval(loadTodos, 30000);  // 每30秒刷新
+            setInterval(loadPushLogs, 60000); // 每60秒刷新日志
+        });
+
+        // 加载 TODO List
+        function loadTodos() {
+            $.get('/api/todos', function(response) {
+                if (response.status === 'success') {
+                    renderTodos(response.todos);
+                    updateStats(response.todos);
+                    if (response.last_sync) {
+                        $('#last-sync').text(new Date(response.last_sync).toLocaleString());
+                    }
+                }
+            }).fail(function() {
+                $('#todos-container').html('<div class="text-center text-muted py-5">加载失败</div>');
+            });
+        }
+
+        // 渲染 TODO List
+        function renderTodos(todos) {
+            const container = $('#todos-container');
+            container.empty();
+            
+            if (todos.length === 0) {
+                container.html(`
+                    <div class="text-center text-muted py-5">
+                        <i class="fas fa-inbox fa-3x mb-3"></i>
+                        <p>暂无任务</p>
+                    </div>
+                `);
+                return;
+            }
+            
+            // 按优先级排序：高 -> 中 -> 低
+            const priorityOrder = {high: 0, medium: 1, low: 2};
+            todos.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+            
+            todos.forEach(todo => {
+                const priorityClass = `priority-${todo.priority}`;
+                const pushedClass = todo.pushed_to_cloud ? 'pushed' : '';
+                const priorityBadgeClass = `priority-${todo.priority}-badge`;
+                const priorityText = {high: '高', medium: '中', low: '低'}[todo.priority];
+                const statusClass = todo.pushed_to_cloud ? 'status-pushed' : 'status-pending';
+                const statusText = todo.pushed_to_cloud ? '已推送' : '待处理';
+                
+                const pushInfo = todo.pushed_to_cloud ? `
+                    <div class="push-indicator mt-2">
+                        <i class="fas fa-check-circle"></i>
+                        已推送至云端 (ID: ${todo.cloud_task_id || '-'})
+                    </div>
+                ` : '';
+                
+                const todoHtml = `
+                    <div class="todo-item ${priorityClass} ${pushedClass}" data-id="${todo.id}">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">${escapeHtml(todo.title)}</h6>
+                                <p class="text-muted small mb-2">${escapeHtml(todo.description || '')}</p>
+                                <div>
+                                    <span class="priority-badge ${priorityBadgeClass}">${priorityText}优先级</span>
+                                    <span class="status-badge ${statusClass}">${statusText}</span>
+                                    <small class="text-muted ml-2">
+                                        <i class="far fa-clock"></i> ${new Date(todo.created_at).toLocaleString()}
+                                    </small>
+                                </div>
+                                ${pushInfo}
+                            </div>
+                            <div class="btn-group btn-group-sm">
+                                ${!todo.pushed_to_cloud ? `
+                                    <button class="btn btn-outline-success" onclick="pushTodoToCloud('${todo.id}', '${escapeHtml(todo.title)}', '${escapeHtml(todo.description || '')}', '${todo.priority}')" title="推送到云端">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                    </button>
+                                ` : ''}
+                                <button class="btn btn-outline-primary" onclick="editTodo('${todo.id}')" title="编辑">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-outline-danger" onclick="deleteTodo('${todo.id}')" title="删除">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.append(todoHtml);
+            });
+            
+            $('#todo-count-badge').text(todos.length);
+        }
+
+        // 更新统计
+        function updateStats(todos) {
+            $('#total-count').text(todos.length);
+            $('#pending-count').text(todos.filter(t => !t.pushed_to_cloud).length);
+            $('#pushed-count').text(todos.filter(t => t.pushed_to_cloud).length);
+            $('#high-priority-count').text(todos.filter(t => t.priority === 'high').length);
+        }
+
+        // 添加任务
+        $('#add-todo-form').submit(function(e) {
+            e.preventDefault();
+            
+            const data = {
+                title: $('#todo-title').val(),
+                description: $('#todo-description').val(),
+                priority: $('#todo-priority').val(),
+                auto_push: $('#todo-auto-push').is(':checked')
+            };
+            
+            $.ajax({
+                url: '/api/todos',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function(response) {
+                    alert('任务添加成功！');
+                    $('#add-todo-form')[0].reset();
+                    loadTodos();
+                },
+                error: function(xhr) {
+                    const error = xhr.responseJSON?.error || '添加失败';
+                    alert('错误：' + error);
+                }
+            });
+        });
+
+        // 删除任务
+        function deleteTodo(todoId) {
+            if (!confirm('确定要删除这个任务吗？')) return;
+            
+            $.ajax({
+                url: `/api/todos/${todoId}`,
+                method: 'DELETE',
+                success: function() {
+                    loadTodos();
+                },
+                error: function() {
+                    alert('删除失败');
+                }
+            });
+        }
+
+        // 编辑任务
+        function editTodo(todoId) {
+            const todo = $(`.todo-item[data-id="${todoId}"]`);
+            const title = todo.find('h6').text();
+            const description = todo.find('p').text();
+            const priorityClass = todo.attr('class').match(/priority-(\w+)/);
+            const priority = priorityClass ? priorityClass[1] : 'medium';
+            
+            $('#edit-todo-id').val(todoId);
+            $('#edit-todo-title').val(title);
+            $('#edit-todo-description').val(description);
+            $('#edit-todo-priority').val(priority);
+            
+            $('#editTodoModal').modal('show');
+        }
+
+        // 保存编辑
+        function saveEditTodo() {
+            const todoId = $('#edit-todo-id').val();
+            const data = {
+                title: $('#edit-todo-title').val(),
+                description: $('#edit-todo-description').val(),
+                priority: $('#edit-todo-priority').val()
+            };
+            
+            $.ajax({
+                url: `/api/todos/${todoId}`,
+                method: 'PUT',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function() {
+                    $('#editTodoModal').modal('hide');
+                    loadTodos();
+                },
+                error: function() {
+                    alert('保存失败');
+                }
+            });
+        }
+
+        // 同步 TODO List
+        function syncTodos() {
+            const btn = $(event.target).closest('button');
+            const originalText = btn.html();
+            btn.html('<i class="fas fa-spinner fa-spin"></i> 同步中...').prop('disabled', true);
+            
+            $.post('/api/todos/sync', function(response) {
+                btn.html(originalText).prop('disabled', false);
+                if (response.status === 'success') {
+                    alert('同步完成！');
+                    loadTodos();
+                } else {
+                    alert('同步失败：' + response.error);
+                }
+            }).fail(function() {
+                btn.html(originalText).prop('disabled', false);
+                alert('同步失败');
+            });
+        }
+
+        // 自动决策推送
+        function autoPushTodos() {
+            const btn = $(event.target).closest('button');
+            const originalText = btn.html();
+            btn.html('<i class="fas fa-spinner fa-spin"></i> 推送中...').prop('disabled', true);
+            
+            $.post('/api/todos/auto-push', function(response) {
+                btn.html(originalText).prop('disabled', false);
+                if (response.status === 'success') {
+                    alert(response.message);
+                    loadTodos();
+                    loadPushLogs();
+                } else {
+                    alert('推送失败：' + response.error);
+                }
+            }).fail(function() {
+                btn.html(originalText).prop('disabled', false);
+                alert('推送失败');
+            });
+        }
+
+        // 手动推送单个任务到云端
+        function pushTodoToCloud(todoId, title, description, priority) {
+            if (!confirm('确定要推送到云端 Qoder CLI 吗？')) return;
+            
+            const data = {
+                task_type: 'manual_push',
+                task_content: `${title}\n${description}`,
+                priority: priority,
+                context: {todo_id: todoId, source: 'manual'}
+            };
+            
+            $.ajax({
+                url: '/api/qoder-cli/push',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function(response) {
+                    alert('推送成功！任务ID: ' + response.task_id);
+                    loadTodos();
+                    loadPushLogs();
+                },
+                error: function(xhr) {
+                    const error = xhr.responseJSON?.error || '推送失败';
+                    alert('错误：' + error);
+                }
+            });
+        }
+
+        // 加载 Qoder CLI 配置
+        function loadQoderConfig() {
+            $.get('/api/qoder-cli/config', function(response) {
+                if (response.status === 'success') {
+                    $('#qoder-base-url').val(response.data.base_url);
+                    $('#qoder-enabled').prop('checked', response.data.enabled);
+                    
+                    // 更新状态显示
+                    if (response.data.enabled) {
+                        $('#qoder-status').removeClass('status-disabled').addClass('status-enabled');
+                        $('#qoder-status').html('<i class="fas fa-circle"></i> 云端推送已启用');
+                    } else {
+                        $('#qoder-status').removeClass('status-enabled').addClass('status-disabled');
+                        $('#qoder-status').html('<i class="fas fa-circle"></i> 云端推送未启用');
+                    }
+                }
+            });
+        }
+
+        // 保存 Qoder CLI 配置
+        $('#qoder-config-form').submit(function(e) {
+            e.preventDefault();
+            
+            const data = {
+                base_url: $('#qoder-base-url').val(),
+                api_key: $('#qoder-api-key').val(),
+                enabled: $('#qoder-enabled').is(':checked')
+            };
+            
+            $.ajax({
+                url: '/api/qoder-cli/config',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function(response) {
+                    alert('配置保存成功！');
+                    loadQoderConfig();
+                },
+                error: function(xhr) {
+                    const error = xhr.responseJSON?.error || '保存失败';
+                    alert('错误：' + error);
+                }
+            });
+        });
+
+        // 加载推送日志
+        function loadPushLogs() {
+            $.get('/api/logs', function(data) {
+                const container = $('#push-logs-container');
+                container.empty();
+                
+                // 筛选与 TODO 和 Qoder CLI 相关的日志
+                const relevantLogs = data.filter(log => 
+                    log.skill === 'todo_manager' || 
+                    log.skill === 'qoder_cli' ||
+                    log.job === 'auto_push_todos' ||
+                    log.job === 'qoder_push'
+                );
+                
+                if (relevantLogs.length === 0) {
+                    container.html('<div class="text-center text-muted">暂无推送记录</div>');
+                    return;
+                }
+                
+                relevantLogs.reverse().forEach(log => {
+                    const logClass = log.status === 'success' ? 'log-success' : 'log-error';
+                    const typeBadge = log.type === 'scheduled' ? 
+                        '<span class="badge badge-info">定时</span>' : 
+                        '<span class="badge badge-secondary">手动</span>';
+                    
+                    const logHtml = `
+                        <div class="log-entry ${logClass}">
+                            <strong>[${log.timestamp}]</strong> ${typeBadge}
+                            <strong>${log.agent || log.job}</strong> → ${log.skill}
+                            <br>
+                            <small class="text-muted">${log.result}</small>
+                        </div>
+                    `;
+                    container.append(logHtml);
+                });
+            });
+        }
+
+        // HTML 转义
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+    </script>
+</body>
+</html>

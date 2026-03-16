@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MalaClaw - 够辣才够味，AI 也能自己动手！</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.6.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        :root {
+            --mala-red: #E74C3C;
+            --mala-dark-red: #C0392B;
+            --mala-blue: #3498DB;
+            --dark-gray: #2C3E50;
+            --light-gray: #ECF0F1;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color: var(--dark-gray);
+            overflow-x: hidden;
+        }
+        
+        /* 顶部导航 */
+        .main-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 15px 0;
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .header-logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--dark-gray);
+        }
+        
+        .header-logo img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
+        
+        .header-logo span {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--mala-red);
+        }
+        
+        .header-nav {
+            display: flex;
+            gap: 30px;
+        }
+        
+        .header-nav a {
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .header-nav a:hover {
+            color: var(--mala-red);
+        }
+        
+        .header-cta {
+            background: var(--mala-red);
+            color: white !important;
+            padding: 8px 20px;
+            border-radius: 20px;
+            transition: all 0.3s;
+        }
+        
+        .header-cta:hover {
+            background: var(--mala-dark-red);
+            transform: translateY(-2px);
+        }
+        
+        /* Hero 区域 */
+        .hero-section {
+            background: #f8f9fa;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            padding-top: 80px;
+        }
+        
+        .hero-content {
+            z-index: 2;
+        }
+        
+        .hero-title {
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--dark-gray);
+            margin-bottom: 20px;
+        }
+        
+        .hero-title span {
+            color: var(--mala-red);
+        }
+        
+        .hero-subtitle {
+            font-size: 1.5rem;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+        
+        .hero-slogan {
+            font-size: 1.2rem;
+            color: var(--mala-red);
+            font-style: italic;
+            margin-bottom: 40px;
+            font-weight: 500;
+        }
+        
+        .btn-hero {
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 50px;
+            background-color: var(--mala-red);
+            color: white;
+            border: none;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+        }
+        
+        .btn-hero:hover {
+            background-color: var(--mala-dark-red);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.6);
+        }
+        
+        .btn-outline-light-custom {
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 50px;
+            border: 2px solid var(--dark-gray);
+            color: var(--dark-gray);
+            background: transparent;
+            transition: all 0.3s;
+        }
+        
+        .btn-outline-light-custom:hover {
+            background-color: var(--mala-red);
+            border-color: var(--mala-red);
+            color: white;
+        }
+        
+        /* LOGO 动画 */
+        .logo-container {
+            text-align: center;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .logo-main {
+            width: 280px;
+            height: 280px;
+            filter: drop-shadow(0 10px 30px rgba(0,0,0,0.3));
+        }
+        
+        /* 特性卡片 */
+        .feature-card {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            height: 100%;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+        
+        .feature-icon {
+            font-size: 60px;
+            color: var(--mala-red);
+            margin-bottom: 20px;
+        }
+        
+        .feature-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--dark-gray);
+        }
+        
+        .feature-desc {
+            color: #7f8c8d;
+            line-height: 1.6;
+        }
+        
+        /* Agent 展示 */
+        .agent-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .agent-card:hover {
+            border-color: var(--mala-red);
+            transform: scale(1.05);
+        }
+        
+        .agent-avatar {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 20px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: var(--mala-red);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .agent-name {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .agent-role {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        .agent-skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+        
+        .skill-tag {
+            background: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: var(--dark-gray);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        /* 演示场景 */
+        .demo-section {
+            background: var(--dark-gray);
+            color: white;
+            padding: 80px 0;
+        }
+        
+        .demo-step {
+            display: flex;
+            align-items: start;
+            margin-bottom: 30px;
+        }
+        
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background: var(--mala-red);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+        
+        .step-content {
+            flex: 1;
+        }
+        
+        /* CTA 区域 */
+        .cta-section {
+            background: white;
+            padding: 80px 0;
+            text-align: center;
+        }
+        
+        .cta-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--dark-gray);
+            margin-bottom: 20px;
+        }
+        
+        .cta-desc {
+            font-size: 18px;
+            color: #7f8c8d;
+            margin-bottom: 40px;
+        }
+        
+        /* Footer */
+        footer {
+            background: var(--dark-gray);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+        }
+        
+        /* 火花动画 */
+        .spark {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #F1C40F;
+            border-radius: 50%;
+            animation: sparkle 2s infinite;
+        }
+        
+        @keyframes sparkle {
+            0%, 100% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <header class="main-header">
+        <div class="header-container">
+            <a href="/" class="header-logo">
+                <img src="/logo.svg" alt="MalaClaw Logo">
+                <span>MalaClaw</span>
+            </a>
+            <nav class="header-nav">
+                <a href="#features">核心特性</a>
+                <a href="#comparison">平台对比</a>
+                <a href="#agents">AI 团队</a>
+                <a href="#scenarios">应用场景</a>
+                <a href="/dashboard" class="header-cta" onclick="window.location.href='/dashboard'; return false;">
+                    <i class="fas fa-rocket"></i> 进入控制台
+                </a>
+            </nav>
+        </div>
+    </header>
+    
+    <!-- Hero 区域 -->
+    <section class="hero-section">
+        <!-- 装饰火花 -->
+        <div class="spark" style="top: 20%; left: 10%;"></div>
+        <div class="spark" style="top: 60%; left: 80%;"></div>
+        <div class="spark" style="top: 30%; left: 90%;"></div>
+        
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6 hero-content">
+                    <h1 class="hero-title"><span>Mala</span>Claw</h1>
+                    <p class="hero-subtitle">麻辣小龙虾 AI Agent 平台</p>
+                    <p class="hero-slogan">
+                        <i class="fas fa-quote-left"></i> 
+                        麻辣麻辣，AI 到家！
+                        <i class="fas fa-quote-right"></i>
+                    </p>
+                    <div class="mt-5">
+                        <a href="/dashboard" class="btn btn-hero mr-3">
+                            <i class="fas fa-rocket"></i> 立即体验
+                        </a>
+                        <a href="#features" class="btn btn-outline-light-custom ml-3">
+                            <i class="fas fa-info-circle"></i> 了解更多
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="logo-container">
+                        <img src="logo.svg" alt="MalaClaw Logo" class="logo-main">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 特性介绍 -->
+    <section id="features" style="padding: 100px 0;">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 style="font-size: 36px; font-weight: 700; margin-bottom: 15px;">核心特性</h2>
+                <p style="color: #7f8c8d; font-size: 18px;">为什么选择 MalaClaw？因为我们够辣！</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <i class="fas fa-robot feature-icon"></i>
+                        <h3 class="feature-title">多智能体协作</h3>
+                        <p class="feature-desc">
+                            4 个专业 AI 助手组成的团队，分工明确，协同工作。一个指令，多个 AI 同时执行任务。
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <i class="fas fa-clock feature-icon"></i>
+                        <h3 class="feature-title">自主定时执行</h3>
+                        <p class="feature-desc">
+                            支持 Cron 表达式，设置固定节奏自动执行。每天晨报、每周报告，全自动无需提醒。
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <i class="fas fa-brain feature-icon"></i>
+                        <h3 class="feature-title">百炼大模型驱动</h3>
+                        <p class="feature-desc">
+                            集成通义千问系列模型，强大的内容生成、数据分析、智能对话能力。
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <i class="fab fa-weixin feature-icon"></i>
+                        <h3 class="feature-title">飞书深度集成</h3>
+                        <p class="feature-desc">
+                            支持 Webhook 和 API 两种方式，自动发送群消息、私聊通知，让沟通零延迟。
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <i class="fas fa-file-excel feature-icon"></i>
+                        <h3 class="feature-title">Excel 数据处理</h3>
+                        <p class="feature-desc">
+                            读取、统计、分析 Excel 数据，自动生成报表。销售数据、财务报表，一键搞定。
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <i class="fas fa-envelope feature-icon"></i>
+                        <h3 class="feature-title">邮件自动发送</h3>
+                        <p class="feature-desc">
+                            SMTP 协议支持，HTML 邮件、附件发送。给客户发报告、给老板发总结，全自动完成。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 平台对比 -->
+    <section id="comparison" style="padding: 100px 0; background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 style="font-size: 36px; font-weight: 700; margin-bottom: 15px;">MalaClaw vs OpenClaw</h2>
+                <p style="color: #7f8c8d; font-size: 18px;">为什么选择 MalaClaw？让我们用数据说话！</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-10 offset-lg-1">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" style="background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
+                            <thead style="background: var(--mala-red); color: white;">
+                                <tr>
+                                    <th style="padding: 20px; font-size: 18px; width: 25%;">对比维度</th>
+                                    <th style="padding: 20px; font-size: 20px; width: 37.5%; background: rgba(255,255,255,0.2);">MalaClaw ⭐</th>
+                                    <th style="padding: 20px; font-size: 18px; width: 37.5%;">OpenClaw</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="padding: 18px; font-weight: 600;"><i class="fas fa-shopping-cart"></i> 场景商城</td>
+                                    <td style="padding: 18px; background: #d4edda;">
+                                        <span class="badge badge-success" style="font-size: 14px; padding: 8px 16px;">✅ 内置场景商城</span><br>
+                                        <small style="color: #666; margin-top: 5px; display: block;">一键安装，开箱即用</small>
+                                    </td>
+                                    <td style="padding: 18px;">
+                                        <span class="badge badge-secondary" style="font-size: 14px; padding: 8px 16px;">❌ 需手动配置</span><br>
+                                        <small style="color: #999; margin-top: 5px; display: block;">需要自行开发场景</small>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 18px; font-weight: 600;"><i class="fas fa-graduation-cap"></i> 学习曲线</td>
+                                    <td style="padding: 18px; background: #d4edda;">
+                                        <span class="badge badge-success" style="font-size: 14px; padding: 8px 16px;">⭐⭐⭐⭐⭐ 极易上手</span><br>
+                                        <small style="color: #666; margin-top: 5px; display: block;">可视化控制台，零编程基础也能用</small>
+                                    </td>
+                                    <td style="padding: 18px;">
+                                        <span class="badge badge-warning" style="font-size: 14px; padding: 8px 16px;">⭐⭐⭐ 中等难度</span><br>
+                                        <small style="color: #999; margin-top: 5px; display: block;">需要了解 Python 和配置</small>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 18px; font-weight: 600;"><i class="fas fa-tachometer-alt"></i> 部署速度</td>
+                                    <td style="padding: 18px; background: #d4edda;">
+                                        <span class="badge badge-success" style="font-size: 14px; padding: 8px 16px;">🚀 5 分钟快速启动</span><br>
+                                        <small style="color: #666; margin-top: 5px; display: block;">一键启动脚本，即刻使用</small>
+                                    </td>
+                                    <td style="padding: 18px;">
+                                        <span class="badge badge-secondary" style="font-size: 14px; padding: 8px 16px;">⏱️ 30+ 分钟</span><br>
+                                        <small style="color: #999; margin-top: 5px; display: block;">需要配置环境和依赖</small>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 18px; font-weight: 600;"><i class="fas fa-cogs"></i> 技术复杂度</td>
+                                    <td style="padding: 18px; background: #d4edda;">
+                                        <span class="badge badge-success" style="font-size: 14px; padding: 8px 16px;">😊 极简设计</span><br>
+                                        <small style="color: #666; margin-top: 5px; display: block;">轻量级架构，代码清晰易懂</small>
+                                    </td>
+                                    <td style="padding: 18px;">
+                                        <span class="badge badge-info" style="font-size: 14px; padding: 8px 16px;">🔧 功能复杂</span><br>
+                                        <small style="color: #999; margin-top: 5px; display: block;">功能全面但配置繁琐</small>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 18px; font-weight: 600;"><i class="fas fa-paint-brush"></i> 用户界面</td>
+                                    <td style="padding: 18px; background: #d4edda;">
+                                        <span class="badge badge-success" style="font-size: 14px; padding: 8px 16px;">🎨 现代化控制台</span><br>
+                                        <small style="color: #666; margin-top: 5px; display: block;">统一 UI 风格，视觉体验佳</small>
+                                    </td>
+                                    <td style="padding: 18px;">
+                                        <span class="badge badge-secondary" style="font-size: 14px; padding: 8px 16px;">📄 基础页面</span><br>
+                                        <small style="color: #999; margin-top: 5px; display: block;">功能导向，UI 较简单</small>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 18px; font-weight: 600;"><i class="fas fa-users"></i> 适用人群</td>
+                                    <td style="padding: 18px; background: #d4edda;">
+                                        <span class="badge badge-success" style="font-size: 14px; padding: 8px 16px;">👥 小白 + 开发者</span><br>
+                                        <small style="color: #666; margin-top: 5px; display: block;">零基础也能轻松上手</small>
+                                    </td>
+                                    <td style="padding: 18px;">
+                                        <span class="badge badge-info" style="font-size: 14px; padding: 8px 16px;">💻 开发者为主</span><br>
+                                        <small style="color: #999; margin-top: 5px; display: block;">更适合有经验的开发者</small>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 18px; font-weight: 600;"><i class="fas fa-code"></i> 代码规模</td>
+                                    <td style="padding: 18px; background: #d4edda;">
+                                        <span class="badge badge-success" style="font-size: 14px; padding: 8px 16px;">📦 ~1500 行核心代码</span><br>
+                                        <small style="color: #666; margin-top: 5px; display: block;">精简高效，易于理解</small>
+                                    </td>
+                                    <td style="padding: 18px;">
+                                        <span class="badge badge-secondary" style="font-size: 14px; padding: 8px 16px;">📚 数万行代码</span><br>
+                                        <small style="color: #999; margin-top: 5px; display: block;">功能丰富但复杂</small>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="text-center mt-5">
+                        <div class="alert alert-info" style="padding: 25px; border-radius: 12px; background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%); border: 2px solid var(--mala-blue);">
+                            <h4 style="color: var(--dark-gray); margin-bottom: 15px; font-weight: 600;">
+                                <i class="fas fa-lightbulb" style="color: var(--mala-red);"></i> 总结
+                            </h4>
+                            <p style="font-size: 16px; line-height: 1.8; color: #555;">
+                                <strong>MalaClaw</strong> 专注于<strong>易用性</strong>和<strong>场景化</strong>，通过内置的场景商城和可视化的控制台，
+                                让您<strong>5 分钟即可上手使用</strong>。即使没有编程经验，也能快速搭建自己的 AI Agent 团队。<br><br>
+                                <strong>OpenClaw</strong> 功能更加全面，但学习成本较高，适合需要深度定制和扩展的开发者。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- AI Agent 团队 -->
+    <section id="agents" style="background: #f8f9fa; padding: 100px 0;">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 style="font-size: 36px; font-weight: 700; margin-bottom: 15px;">你的 AI 员工团队</h2>
+                <p style="color: #7f8c8d; font-size: 18px;">4 个专业助手，24 小时为你服务</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="agent-card">
+                        <div class="agent-avatar">
+                            <i class="fas fa-pen-fancy"></i>
+                        </div>
+                        <h4 class="agent-name">内容助手</h4>
+                        <p class="agent-role">内容创作专家</p>
+                        <div class="agent-skills">
+                            <span class="skill-tag">文章生成</span>
+                            <span class="skill-tag">报告撰写</span>
+                            <span class="skill-tag">网页截图</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3">
+                    <div class="agent-card">
+                        <div class="agent-avatar">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h4 class="agent-name">数据助手</h4>
+                        <p class="agent-role">数据分析专家</p>
+                        <div class="agent-skills">
+                            <span class="skill-tag">Excel 处理</span>
+                            <span class="skill-tag">数据统计</span>
+                            <span class="skill-tag">趋势分析</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3">
+                    <div class="agent-card">
+                        <div class="agent-avatar">
+                            <i class="fas fa-headset"></i>
+                        </div>
+                        <h4 class="agent-name">客服助手</h4>
+                        <p class="agent-role">客户沟通专家</p>
+                        <div class="agent-skills">
+                            <span class="skill-tag">飞书消息</span>
+                            <span class="skill-tag">邮件发送</span>
+                            <span class="skill-tag">智能问答</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3">
+                    <div class="agent-card">
+                        <div class="agent-avatar">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <h4 class="agent-name">协调员</h4>
+                        <p class="agent-role">任务协调专家</p>
+                        <div class="agent-skills">
+                            <span class="skill-tag">多 Agent 协作</span>
+                            <span class="skill-tag">工作流编排</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 演示场景 -->
+    <section id="scenarios" class="demo-section">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 style="font-size: 36px; font-weight: 700; margin-bottom: 15px;">典型应用场景</h2>
+                <p style="font-size: 18px; opacity: 0.9;">看 MalaClaw 如何帮你高效工作</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="demo-step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>每日晨报自动化</h4>
+                            <p>工作日早上 8:30，自动向团队发送晨报，包含天气、待办事项、系统状态等。</p>
+                        </div>
+                    </div>
+                    
+                    <div class="demo-step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>销售数据分析报告</h4>
+                            <p>读取 Excel 销售数据 → 分析趋势 → 生成报告 → 邮件发送给老板，全流程自动化。</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="demo-step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>多 Agent 协作</h4>
+                            <p>数据助手分析 → 内容助手写报告 → 客服助手发送，三个 AI 协同完成复杂任务。</p>
+                        </div>
+                    </div>
+                    
+                    <div class="demo-step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h4>竞品监控助手</h4>
+                            <p>自动截取竞品网站 → AI 分析页面内容 → 生成竞争分析报告，掌握市场动态。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- CTA 区域 -->
+    <section class="cta-section">
+        <div class="container">
+            <h2 class="cta-title">准备好开始了吗？</h2>
+            <p class="cta-desc">
+                立即部署你的 AI 员工团队，让 MalaClaw 帮你高效工作！
+            </p>
+            <div class="mt-5">
+                <a href="/dashboard" class="btn btn-hero mr-3">
+                    <i class="fas fa-rocket"></i> 进入控制台
+                </a>
+                <a href="https://github.com/lvzhaobo/malaclaw" target="_blank" class="btn btn-outline-dark ml-3">
+                    <i class="fab fa-github"></i> GitHub 仓库
+                </a>
+            </div>
+            
+            <div class="mt-5">
+                <p style="color: #7f8c8d;">
+                    <i class="fas fa-check-circle" style="color: #28a745;"></i> 开源免费 &nbsp;&nbsp;
+                    <i class="fas fa-check-circle" style="color: #28a745;"></i> 快速部署 &nbsp;&nbsp;
+                    <i class="fas fa-check-circle" style="color: #28a745;"></i> 中文友好
+                </p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 text-left">
+                    <h5>MalaClaw</h5>
+                    <p style="color: rgba(255,255,255,0.7);">
+                        麻辣麻辣，AI 到家！
+                    </p>
+                </div>
+                <div class="col-md-4">
+                    <p>&copy; 2026 MalaClaw Team. All rights reserved.</p>
+                </div>
+                <div class="col-md-4 text-right">
+                    <a href="https://github.com/lvzhaobo/malaclaw" target="_blank" style="color: white; margin-left: 15px;"><i class="fab fa-github fa-lg"></i></a>
+                    <a href="#" style="color: white; margin-left: 15px;"><i class="fab fa-weixin fa-lg"></i></a>
+                    <a href="#" style="color: white; margin-left: 15px;"><i class="fas fa-envelope fa-lg"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.6.2/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 平滑滚动
+        $('a[href^="#"]').on('click', function(event) {
+            var target = $(this.getAttribute('href'));
+            if(target.length) {
+                event.preventDefault();
+                $('html, body').stop().animate({
+                    scrollTop: target.offset().top - 80
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+</html>

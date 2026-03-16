@@ -1,0 +1,25 @@
+{
+  "bailian": {
+    "api_key": "sk-xxxxxxxxxxxxxxxx",
+    "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+  },
+  "feishu": {
+    "webhook": "https://open.feishu.cn/open-apis/bot/v2/hook/YOUR_WEBHOOK_HERE",
+    "app_id": "cli_aaxxxxxxxxxxxxx",
+    "app_secret": "xxxxxxxxxxxxxxxx",
+    "app_name": "MalaClaw",
+    "encrypt_key": "",
+    "verification_token": ""
+  },
+  "email": {
+    "smtp_server": "smtp.example.com",
+    "smtp_port": 465,
+    "username": "your-email@example.com",
+    "password": "your-password"
+  },
+  "qoder_cli": {
+    "base_url": "http://localhost:8080",
+    "api_key": "your-api-key-here",
+    "enabled": false
+  }
+}
