@@ -1,4 +1,4 @@
-# MalaClaw - AI Agent 平台（精简版）
+# MalaClaw
 
 <div align="center">
 
@@ -7,6 +7,7 @@
 </div>
 
 <div>
+
 > **名字来源**：MalaClaw = Mala（麻辣）+ Claw（龙虾），灵感来自"麻辣小龙虾"  
 > **定位**：用于演示的轻量级 AI Agent 平台  
 > **口号**："麻辣麻辣，AI 到家！"
